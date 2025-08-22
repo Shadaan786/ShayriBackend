@@ -1,0 +1,22 @@
+{
+  "name": "shaayri",
+  "version": "1.0.0",
+  "main": "backend.js",
+  "scripts": {
+    "start": "node backend.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-status-monitor": "^1.3.4",
+    "mongoose": "^8.16.5",
+    "uuid": "^11.1.0"
+  }
+}

@@ -1,0 +1,61 @@
+const mongoose = require("mongoose");
+const Shayri = require("./models/Shayri"); // ✅ Your model
+
+const sherData = [
+  {name:'Iqbal', id: 1, text: "Hai Ram ke wajood pe Hindostan ko naaz\nAhl-e-nazar samajhte hain us ko Imam-e-Hind" },
+  {name:'Iqbal', id: 2, text: "Saare jahan se accha Hindostan hamara\nHum bulbulen hain is ki, ye gulsitan hamara" },
+  {name:'Iqbal', id: 3, text: "Aaeen-e-jawanmardan haq-goi o bebaki\nAllah ke sheron ko aati nahi rubahi" },
+  {name:'Iqbal', id: 4, text: "Moti samajh ke shaan-e-Karimi ne chun liye\nQatre jo the mere arq-e-infi'aal ke" },
+  {name:'Iqbal', id: 5, text: "Aql ko tanqeed se fursat nahi\nIshq par aamaal ki buniyad rakh" },
+  { name:'Iqbal', id: 6, text: "Gala to ghont diya ahl-e-madarsa ne tera\nKahan se aaye sada la ilaha illallah" },
+  { name:'Iqbal', id: 7, text: "Main tujh ko batata hoon taqdeer-e-umam kya hai\nShamsheer-o-sinaan awwal, ta'uso-rubab aakhir" },
+  {name:'Iqbal', id: 8, text: "Tu ne ye kya ghazab kiya, mujh ko bhi faash kar diya\nMain hi to ek raaz tha seena-e-kainat mein" },
+  {name:'Iqbal', id: 9, text: "Bhari bazm mein raaz ki baat keh di\nBada be-adab hoon, saza chahta hoon" },
+  { name:'Iqbal', id: 10, text: "Ye jannat mubarak rahe zahidon ko\nKe main aap ka saamna chahta hoon" },
+  { name:'Iqbal', id:11, text: "Jalaal-e-padshahi ho ke jamhoori tamasha ho\nJuda ho deen siyasat se to reh jaati hai Changezi" },
+  { name:'Iqbal', id: 12, text: "Apne favorite mein shamil kijiye, share kijiye" },
+  { name:'Iqbal', id:13, text: "Tera Imam be-huzoor, teri namaz be-suroor\nAisi namaz se guzar, aise Imam se guzar" },
+  { name:'Iqbal', id: 14, text: "Apne favorite mein shamil kijiye, share kijiye" },
+  {name:'Iqbal', id: 15, text: "Phool ki patti se kat sakta hai heere ka jigar\nMard-e-nadan par kalam-e-narm-o-naazuk be-asar" },
+  {name:'Iqbal', id: 16, text: "Meer-e-Arab ko aayi thandi hawa jahan se\nMera watan wahi hai, mera watan wahi hai" },
+  { name:'Iqbal', id: 17, text: "Tujhe kitaab se mumkin nahi firaaq ke tu\nKitaab-khwan hai magar saahib-e-kitaab nahi" },
+  { name:'Iqbal', id: 18, text: "Khudawanda ye tere saadadil bande kidhar jaayein\nKe darveshi bhi ayyaari hai, sultani bhi ayyaari" },
+  { name:'Iqbal', id: 19, text: "Saudagari nahi ye, ibadat Khuda ki hai\nAe be-khabar, jaza ki tamanna bhi chhod de" },
+  { name:'Iqbal', id: 20, text: "Na poocho mujh se lazzat khaanama-barbaad rehne ki\nNasheman saikadon maine bana kar phoonk daale hain" },
+  {name:'Iqbal', id: 21, text: "Kabhi hum se, kabhi ghairon se shanasaayi hai\nBaat kehne ki nahi, tu bhi to harjaayi hai" },
+  { name:'Iqbal', id: 22, text: "Apne favorite mein shamil kijiye, share kijiye" },
+  { name:'Iqbal', id: 23, text: "Jinhein main dhoondhta tha aasmaanon mein, zameenon mein\nWoh nikle mere zulmat-khaana-e-dil ke makeeno mein" },
+  { name:'Iqbal', id: 24, text: "Aql ayyar hai, sau bhes badal leti hai\nIshq bechara na zahid hai, na mulla, na hakeem" },
+  { name:'Iqbal', id: 25, text: "Ye kainaat abhi na-tamaam hai shaayad\nKe aa rahi hai damadam sada-e-kun faya kun" },
+  { name:'Iqbal', id: 26, text: "Mahine wasl ke ghadiyon ki surat udte jaate hain\nMagar ghadiyan judaayi ki guzarti hain maheenon mein" },
+  { name:'Iqbal', id: 27, text: "Umeed-e-hoor ne sab kuch sikha rakha hai waiz ko\nYe hazrat dekhne mein seedhe-saade bhole-bhaale hain" },
+  {name:'Iqbal', id: 28, text: "Mujhe roke ga tu ai nakhuda kya gharaq hone se\nKe jin ko doobna hai doob jaate hain safeenon mein" },
+  { name:'Iqbal', id: 29, text: "Anokhi waza’ hai, saare zamane se niraale hain\nYe aashiq kaun si basti ke, ya-Rab rehne waale hain" },
+  { name:'Iqbal', id: 30, text: "Milega manzil-e-maqsood ka usi ko suraagh\nAndheri shab mein hai cheete ki aankh jiska charaagh" },
+  { name:'Iqbal', id: 31, text: "Hue madfoon-e-dariya, zer-e-dariya tairne waale\nTamaanche mauj ke khaate the, jo ban kar guhar nikle" },
+  { name:'Iqbal', id: 32, text: "Haan dikha de ai tasavvur, phir wo subh o shaam tu\nDaud peeche ki taraf ai gardish-e-ayyam tu" },
+  { name:'Iqbal', id: 33, text: "Sabaq mila hai ye meraaj-e-Mustafa se mujhe\nKe aalam-e-bashariyat ki zad mein hai gardoon" },
+  { name:'Iqbal', id: 34, text: "Attar ho, Rumi ho, Razi ho, Ghazali ho\nKuch haath nahi aata be-aah-e-sahar-gaahi" },
+  { name:'Iqbal', id: 35, text: "Zaahir ki aankh se na tamaasha kare koi\nHo dekhna to deeda-e-dil waa kare koi" },
+  {name:'Iqbal', id: 36, text: "Mana ke teri deed ke qaabil nahi hoon main\nTu mera shauq dekh, mera intezaar dekh" }
+];
+
+mongoose
+  .connect("mongodb+srv://CloudUser:Developer7310@cluster0.p095vnk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+  .then(async () => {
+    console.log("✅ Connected to MongoDB");
+
+    const count = await Shayri.countDocuments();
+    if (count === 0) {
+      await Shayri.insertMany(sherData);
+      console.log("🌱 Data seeded successfully.");
+    } else {
+      console.log("⚠️ Data already exists. Skipping seeding.");
+    }
+
+    mongoose.connection.close();
+  })
+  .catch((err) => {
+    console.error("❌ Seeding failed:", err);
+    mongoose.connection.close();
+  });
