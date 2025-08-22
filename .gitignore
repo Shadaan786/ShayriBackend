@@ -16,3 +16,4 @@ Thumbs.db
 # IDE/editor
 .vscode/
 .idea/
+node_modules/
