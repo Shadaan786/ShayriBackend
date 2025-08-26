@@ -15,16 +15,21 @@ app.use(express.json());
 
 const userRoute = require('./routes/signup');
 const userRoute2 = require('./routes/login');
+const kalamRoute = require('./routes/kalamRoute');
 
 
 
 const PORT = 9000;
 
-app.use(cors());
+app.use(cors({
+     origin: ["http://localhost:5173", "https://shayriclub.vercel.app"], 
+  methods: ["GET", "POST", "PUT", "DELETE"], // your frontend URL
+    credentials: true                // allow cookies to be sent
+}));
 app.use(cookieParser());  
 
 // app.use(status());
-app.use("/signup", stayLoggedIn,  userRoute);
+app.use("/signup", userRoute);
 console.log("✅ Signup route registered at /signup"); //
 app.use("/login", userRoute2);
 console.log("login route registered at /signup/login");
@@ -51,6 +56,9 @@ return res.status(201).json({msg:"User created success"});
 
 });
 
+app.use("/kalam", stayLoggedIn, kalamRoute);
+console.log("Kalam route hit");
+
 
 
 mongoose.connect("mongodb+srv://CloudUser:Developer7310@cluster0.p095vnk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
@@ -72,9 +80,36 @@ const Shayri = mongoose.model('shayri', ShayriSchema);
 
 
 
+// const Kalam = mongoose.model('Kalam', KalamSchema);
+
+
 app.get("/api/sher/Allama_Iqbal", async (req, res) =>{
   const allDbShayri = await Shayri.find({});
     return res.json(allDbShayri);
+});
+
+// const KalamSchema = new mongoose.Schema({
+//     title: String,
+//     content: String
+
+// });
+
+
+
+app.post("api/sher/Kalam",  async (req, res) =>{
+  const body = req.body
+  if(
+    !body||
+    !body.title||
+    !body.content ){
+      return res.status(404).json({
+        msg: "All fields are required",
+        success: true                        
+      })
+
+    }
+    console.log(req.body);
+  
 });
 
 

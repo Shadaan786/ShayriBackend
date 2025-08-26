@@ -1,23 +1,25 @@
-const { getUser } = require('../service/auth')
+const { getUser } = require('../service/auth');
 
+async function stayLoggedIn(req, res, next) {
+    const userUid = req.cookies?.uid;
 
-async function stayLoggedIn(req, res, next){
-    const userUid = req.cookie?.uid;
+    if (!userUid) {
+        return res.json({
+            success: true,
+            redirectUrl: "/Signup/Login"
+        });
+    }
 
-    if(!userUid) return res.json({
-        redirectUrl: "/login"
-    })
+    const user = await getUser(userUid); // await if async
 
-    const user = getUser(userUid);
+    if (!user) {
+        return res.json({
+            redirectUrl: "/login"
+        });
+    }
 
-    if(!user) return res.json({
-        redirectUrl: "/login"
-    })
-
-    req.user =  user 
+    req.user = user; // attach user to req
     next();
 }
 
-module.exports = {
-    stayLoggedIn
-}
+module.exports = { stayLoggedIn };
