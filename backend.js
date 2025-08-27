@@ -24,7 +24,8 @@ const PORT = 9000;
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], // your frontend URL
-    credentials: true                // allow cookies to be sent
+    credentials: true,      // allow cookies to be sent
+      allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(cookieParser());  
 
