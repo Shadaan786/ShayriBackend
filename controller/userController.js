@@ -90,7 +90,13 @@ async function handleUserSignup(req, res) {
         // setUser(sessionId, user)
 
         const token = setUser(user)
-        res.cookie("uid", token);
+        res.cookie("uid", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",  // HTTPS only in prod
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
+  path: "/",  // allow cookie on all routes
+  maxAge: 24 * 60 * 60 * 1000, // 1 day
+});
         // res.cookie('uid', sessionId)
             return res.status(200).json({msg: "User found successfully"})
         }

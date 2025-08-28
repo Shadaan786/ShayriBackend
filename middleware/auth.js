@@ -1,9 +1,9 @@
 const { getUser } = require('../service/auth');
 
 async function stayLoggedIn(req, res, next) {
-    const userUid = req.cookies?.uid;
+    const token = req.cookies?.uid;
 
-    if (!userUid) {
+    if (!token) {
         return res.json({
             success: true,
             redirectUrl: "/Signup/Login"

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const secret = "lappu@123"
+const secret = process.env.JWT_SECRET;
 // const sessionIdToUserMap = new Map()
 
 
