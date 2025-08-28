@@ -10,7 +10,7 @@ async function stayLoggedIn(req, res, next) {
         });
     }
 
-    const user = await getUser(userUid); // await if async
+    const user = await getUser(token); // await if async
 
     if (!user) {
         return res.json({
