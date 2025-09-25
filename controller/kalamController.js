@@ -19,7 +19,7 @@ async function handleKalam(req, res) {
     if(type === type && content === content){
 
     return res.status(201).json({
-        msg: "kalam successfully created",
+        msg: "kalam uploaded succesfully",
         success: true,
         kalam: kalam.content
 
@@ -32,4 +32,4 @@ async function handleKalam(req, res) {
     
 }
 
-module.exports = { handleKalam };
+module.exports = { handleKalam };   

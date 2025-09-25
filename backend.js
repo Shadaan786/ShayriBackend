@@ -5,6 +5,7 @@ const express = require("express");
 const status = require("express-status-monitor");
 const cookieParser = require('cookie-parser')
 
+
 // const shayri = require("./shayri.json")
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -16,6 +17,7 @@ app.use(express.json());
 const userRoute = require('./routes/signup');
 const userRoute2 = require('./routes/login');
 const kalamRoute = require('./routes/kalamRoute');
+const Kalam = require('./models/Kalam');
 
 
 
@@ -89,6 +91,11 @@ app.get("/api/sher/Allama_Iqbal", async (req, res) =>{
     return res.json(allDbShayri);
 });
 
+app.get("/api/UrKalam", async (req, res)=>{
+  const allDbKalam = await Kalam.find({});
+  return res.json(allDbKalam);
+})
+
 // const KalamSchema = new mongoose.Schema({
 //     title: String,
 //     content: String
@@ -130,6 +137,10 @@ app.get("/api/sher/Allama_Iqbal/:id", (req, res)=>{
     return res.json(sher);
 })
 
+
+// app.get("/kalam", (req, res)=>{
+
+// })
 
 
 
