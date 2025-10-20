@@ -11,7 +11,8 @@ async function handleKalam(req, res) {
 
     const kalam = await Kalam.create({
         type,
-        content
+        content,
+        createdBy: req.user._id,
     });
 
     console.log("Kalam created successfully");

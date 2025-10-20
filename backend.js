@@ -18,6 +18,7 @@ const userRoute = require('./routes/signup');
 const userRoute2 = require('./routes/login');
 const kalamRoute = require('./routes/kalamRoute');
 const Kalam = require('./models/Kalam');
+const {setUser, getUser} = require('./service/auth');
 
 
 
@@ -92,7 +93,11 @@ app.get("/api/sher/Allama_Iqbal", async (req, res) =>{
 });
 
 app.get("/api/UrKalam", async (req, res)=>{
-  const allDbKalam = await Kalam.find({});
+  token = req.cookies.uid;
+  console.log(req.cookies.uid);
+  const user = getUser(token);
+  req.user = user;
+  const allDbKalam = await Kalam.find({createdBy: req.user._id});
   return res.json(allDbKalam);
 })
 
