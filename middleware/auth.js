@@ -18,7 +18,11 @@ async function stayLoggedIn(req, res, next) {
         });
     }
 
+    console.log(req.user)
+    console.log(typeof(req.user))
     req.user = user; // attach user to req
+
+
     next();
 }
 

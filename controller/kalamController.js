@@ -1,3 +1,6 @@
+const {getUser} = require('../service/auth')
+
+
 const Kalam = require("../models/Kalam");
 
 async function handleKalam(req, res) {
@@ -19,7 +22,14 @@ async function handleKalam(req, res) {
 
     if(type === type && content === content){
 
+        const token = req.cookies.uid;
+        getUser(token);
+
+
+        let streak = await Kalam.find({createdBy: req.user._id}, {createdAt: 1, _id: 0}).sort({createdAt: -1}).limit(2);
+
     return res.status(201).json({
+        streak,
         msg: "kalam uploaded succesfully",
         success: true,
         kalam: kalam.content

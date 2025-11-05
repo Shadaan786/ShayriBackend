@@ -18,7 +18,10 @@ const userRoute = require('./routes/signup');
 const userRoute2 = require('./routes/login');
 const kalamRoute = require('./routes/kalamRoute');
 const Kalam = require('./models/Kalam');
+const User = require('./models/User')
 const {setUser, getUser} = require('./service/auth');
+const streakRoute = require('./routes/StreakRoute');
+const Streak = require("./models/Streak")
 
 
 
@@ -37,6 +40,9 @@ app.use("/signup", userRoute);
 console.log("✅ Signup route registered at /signup"); //
 app.use("/login", userRoute2);
 console.log("login route registered at /signup/login");
+
+app.use("/streak", stayLoggedIn, streakRoute);
+console.log("streak done")
 
 app.post("/api/sher/Allama_Iqbal", async (req, res)=>{
   const body = req.body
@@ -98,6 +104,7 @@ app.get("/api/UrKalam", async (req, res)=>{
   const user = getUser(token);
   req.user = user;
   const allDbKalam = await Kalam.find({createdBy: req.user._id});
+  
   return res.json(allDbKalam);
 })
 
@@ -142,11 +149,69 @@ app.get("/api/sher/Allama_Iqbal/:id", (req, res)=>{
     return res.json(sher);
 })
 
+app.get("/api/users", async (req, res)=>{
+  const token = req.cookies.uid;
+  const  user = getUser(token);
+  req.user = user;
+  const userDb = await User.find({_id: req.user._id}, {name: 1, createdAt: 1, _id: 0});
+
+  
+  // const hello = userDb[0];
+  // const hello = userDb[0].name;
+    const len = await Kalam.find({createdBy: req.user._id});
+    const leng = len.length
+   
+    //Total contributions made in nazm
+    const nazm = await Kalam.find({createdBy: req.user._id, type: "nazm"})
+    const nazmLen = nazm.length;
+    
+    // Total contributions made in ghazal
+    const ghazal = await Kalam.find({createdBy: req.user._id, type: "ghazal"});
+    const ghazalLen = ghazal.length;
+
+    // Total contributions made in shayri
+    const sherCollection = await Kalam.find({createdBy: req.user._id, type: "sher"});
+    const sherCollectionLen = sherCollection.length;
+
+
+    const counter = await User.find({_id: req.user._id}, {_id: 0, streak: 1})
+
+  
+
+  
+  return res.json({
+    userDb,
+    leng,
+    nazmLen,
+    ghazalLen,
+    sherCollectionLen,
+    counter,
+    
+
+  });
+})
 
 // app.get("/kalam", (req, res)=>{
 
 // })
 
+
+app.get("/api/streak", async (req, res)=>{
+
+
+  const token = req.cookies.uid;
+
+  const user = getUser(token);
+
+  req.user = user;
+
+
+  const userStreak = await User.find({_id: req.user._id})
+
+  return res.json(userStreak)
+
+
+})
 
 
 
