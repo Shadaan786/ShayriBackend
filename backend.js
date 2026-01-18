@@ -22,7 +22,9 @@ const User = require('./models/User')
 const {setUser, getUser} = require('./service/auth');
 const streakRoute = require('./routes/StreakRoute');
 const Streak = require("./models/Streak")
-
+const { handleSearch } = require("./controller/searchController")
+const { handleCommunity} = require("./controller/CommunityController")
+const Community = require('./models/Community')
 
 
 const PORT = 9000;
@@ -213,7 +215,75 @@ app.get("/api/streak", async (req, res)=>{
 
 })
 
+// app.get("/api/username", async (req, res)=>{
+    
+//   console.log(req.body)
+//  const ulo = await User.find({}, {_id: 0, name: 1})
+
+//  return res.json(ulo)
+// })
+app.post("/api/username", handleSearch)
 
 
+app.post("/api/community", stayLoggedIn, handleCommunity)
+
+
+
+
+app.get("/api/communityDisp", async (req, res)=>{
+
+
+  const comms = await Community.find();
+  // const comms2 = await Community.find({}, {name: 0, category: 1, bio: 1, createdAt: 1} )
+
+  return res.json(comms)
+
+})
+
+app.post("/api/community/search", async (req, res)=>{
+
+  const need = req.body.need
+
+  const communityFound = await Community.find({name: need});
+
+  
+  const token = req.cookies.uid;
+  req.user = getUser(token)
+  const userId = await User.find({"_id": req.user._id}, {_id: 1});
+
+  return res.json({
+    
+    communityFound,
+    userId
+  });
+})
+
+app.post("/api/community/search2", async (req, res)=>{
+
+  const token = req.cookies.uid;
+   req.user = getUser(token);
+
+   const userId = await User.find({_id: req.user._id}, {_id: 1})
+
+   return res.json(userId);
+  
+})
+
+app.get("/api/community/Chat", async(req, res)=>{
+  const community = req.query.community;
+
+  // console.log(community)
+
+ const result = await Community.find({name: community}, {messages: 1, _id: 0})
+
+//  const result2 = result
+
+
+
+ res.json(result)
+})
+
+
+// app.get("/api/community/profile")
 
 app.listen(PORT, ()=> console.log(`Server is running at ${PORT}`));
