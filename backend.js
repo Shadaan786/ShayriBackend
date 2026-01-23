@@ -283,6 +283,14 @@ app.get("/api/community/Chat", async(req, res)=>{
  res.json(result)
 })
 
+app.get('/api/social', async(req, res)=>{
+
+  const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
+  const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:0})
+
+  return res.json(allKalamsName)
+})
+
 
 // app.get("/api/community/profile")
 

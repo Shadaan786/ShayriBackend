@@ -16,7 +16,12 @@ const KalamSchema = new mongoose.Schema({
 
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'user'
+    },
+
+    name: {
+        type: String,
+        required: true
     }
 
 

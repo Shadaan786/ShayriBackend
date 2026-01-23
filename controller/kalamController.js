@@ -5,6 +5,7 @@ const Kalam = require("../models/Kalam");
 
 async function handleKalam(req, res) {
 
+
     const {type, content} = req.body;
     if(!type || !content){
         return res.status(400).json({
@@ -16,6 +17,7 @@ async function handleKalam(req, res) {
         type,
         content,
         createdBy: req.user._id,
+        name: req.user.name
     });
 
     console.log("Kalam created successfully");
