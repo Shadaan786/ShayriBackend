@@ -6,6 +6,7 @@ const cors = require('cors');
 const User = require("./models/User")
 const { getUser } = require("./service/auth");
 const Community = require('./models/Community');
+const Kalam = require('./models/Kalam');
 const cookieParser = require('cookie-parser')
 
 const app = express();
@@ -49,10 +50,11 @@ ws.on('connection', (connection, request) => {
 
     connection.on('message', async message => {
         const data = (message.toString());
+        
         console.log(data)
         // console.log(data.payload.content)
         const real_data = JSON.parse(data)
-        console.log(real_data.payload.content)
+        // console.log(real_data.payload.content)
 
         if (real_data.type === "global_chat") {
 
@@ -163,6 +165,46 @@ ws.on('connection', (connection, request) => {
 
 
             
+        }else if(real_data.type === "kalam_like"){
+
+            const memberId = real_data.payload.uid ; 
+            const kalamId = real_data.payload.kalamUid
+            const likes = await Kalam.find({_id: kalamId, likedBy: memberId});
+
+            console.log(likes.length)
+
+            if(likes.length === 0){
+
+              const check =  await Kalam.updateOne({_id: kalamId},{$addToSet:{likedBy: memberId}})
+
+              const check2 =  await Kalam.updateOne({_id: kalamId}, {$inc:{totalLikes: 1}})
+              console.log("check", check)
+              console.log("check2", check2)
+            }else{
+
+
+           
+             
+          const check3 =  await Kalam.updateOne({_id: kalamId},{$pull:{likedBy: memberId}})
+
+          const check4 =  await Kalam.updateOne({_id: kalamId}, {$inc:{totalLikes: -1}})
+
+           console.log("check3", check3)
+          console.log("check4", check4)
+
+           }
+          
+         
+
+
+
+
+            
+        }else if(real_data.type === "kalam_comment"){
+
+            const memberUuid = real_data.payload.mUid;
+            const comment = real_data.payload.content;
+            const kalamId = real_data.payload.kalId;
         }
     })
 

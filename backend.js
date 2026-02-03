@@ -13,6 +13,7 @@ const mongoose = require("mongoose");
 const { stayLoggedIn } = require('./middleware/auth')
 const app =express();
 app.use(express.json());
+const url = require('url');
 
 const userRoute = require('./routes/signup');
 const userRoute2 = require('./routes/login');
@@ -25,6 +26,7 @@ const Streak = require("./models/Streak")
 const { handleSearch } = require("./controller/searchController")
 const { handleCommunity} = require("./controller/CommunityController")
 const Community = require('./models/Community')
+const {commentController} = require('./controller/commentController')
 
 
 const PORT = 9000;
@@ -286,10 +288,44 @@ app.get("/api/community/Chat", async(req, res)=>{
 app.get('/api/social', async(req, res)=>{
 
   const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
-  const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:0})
+  const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1})
 
-  return res.json(allKalamsName)
+  const token = req.cookies.uid;
+
+  req.user = getUser(token);
+
+  const userId = await User.find({_id: req.user._id});
+
+  return res.json({
+    
+    allKalamsName,
+    userId
+
+  })
 })
+
+
+app.get('/api/kalam/comment', async (req, res)=>{
+
+  const id = url.parse(req.url, true).query.id
+
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+
+  const userKalam = await Kalam.find({_id: id}, {comments: 1, _id: 0})
+  const mId = await User.find({_id: req.user._id})
+  
+
+  return res.json({
+
+    userKalam,
+    mId
+  });
+})
+
+
+
+app.post('/api/kalam/comm', commentController )
 
 
 // app.get("/api/community/profile")

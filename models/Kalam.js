@@ -22,8 +22,31 @@ const KalamSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
-    }
+    },
 
+ totalLikes:{
+    type: Number,
+    default: 0,
+    required: true
+   },
+
+   likedBy:[
+    {
+        type: String
+    }
+   ],
+
+   comments:[
+    {
+        commentBy:{
+            type: String
+        },
+
+        comment:{
+            type: String
+        }
+    }
+   ]
 
 
 }, {timestamps: true});
