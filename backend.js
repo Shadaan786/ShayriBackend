@@ -307,7 +307,8 @@ app.get('/api/social', async(req, res)=>{
 
 app.get('/api/kalam/comment', async (req, res)=>{
 
-  const id = url.parse(req.url, true).query.id
+  const id = url.parse(req.url, true).query.kalamId
+  console.log("kalamd_id", id)
 
   const token = req.cookies.uid;
   req.user = getUser(token);

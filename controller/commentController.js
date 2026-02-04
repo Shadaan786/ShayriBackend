@@ -7,6 +7,8 @@ const {comment} = req.body;
 const kalamId = url.parse(req.url, true).query.kalamId
 const {mUid}  = req.body;
 
+console.log(req.body);
+
  const check = await  Kalam.updateOne({_id: kalamId},{ $addToSet:{comments:{commentBy: mUid, comment: comment}}})
 
  console.log("checking", check)

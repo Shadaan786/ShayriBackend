@@ -45,6 +45,10 @@ const KalamSchema = new mongoose.Schema({
         comment:{
             type: String
         }
+    },
+
+    {
+        timestamps: true
     }
    ]
 
