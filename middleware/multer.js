@@ -1,24 +1,66 @@
-// const multer = require('multer');
+const multer = require('multer');
 
-// const storage = multer.diskStorage({destination: function (req, file, cb){
+const storage = multer.diskStorage({destination: function (req, file, cb){
 
-//     cb(null, './uploads/profilePics')
-// },
 
-// filename: function (req, file, cb){
+    console.log("hello main check")
+    console.log("First req",req);
 
-//     const uniqueSuffix = Date.now() + '_' + Math.round(Math.random()* 1E9)
 
-//     cb(null, file.fieldname + '-' + uniqueSuffix)
+    cb(null, '../uploads/profilePics')
 
-// }
+     console.log("1st file", file)
+},
 
-// })
+filename: function (req, file, cb){
 
-//  const upload = multer({storage: storage})
+    console.log("2nd req", req);
 
-//  module.exports = upload
+    const uniqueSuffix = Date.now() + '_' + Math.round(Math.random()* 1E9)
 
+    cb(null, file.fieldname + '-' + uniqueSuffix)
+
+    console.log("2nd file", file)
+
+}
+
+})
+
+ const upload = multer({storage: storage})
+
+ module.exports = {upload}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ // correct----------------------------------------------------------------------------------------->
+
+ // Upload an image 
+
+//  cloudinary.uploader .upload( filePath,
+//      { public_id: 'shoes', } 
+    
+//     ) 
+
+//     .then((uploadResult)=>{
+//         console.log(uploadResult)
+//     })
+     
 
 
 
@@ -50,6 +92,17 @@
 //         api_secret: '**********' // Click 'View API Keys' above to copy your API secret
 //     });
 
+
+//--------------------------------------------------------------------------------------------------------------->
+
+
+
+
+
+
+
+
+
  
 // const storage = new CloudinaryStorage({
 //   cloudinary: cloudinary,
@@ -59,9 +112,10 @@
 //     public_id: (req, file) => 'computed-filename-using-request',
 //   },
 // });
+
+
+
+
  
 // const parser = multer({ storage: storage });
  
-// app.post('/upload', parser.single('image'), function (req, res) {
-//   res.json(req.file);
-// });

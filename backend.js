@@ -26,7 +26,8 @@ const Streak = require("./models/Streak")
 const { handleSearch } = require("./controller/searchController")
 const { handleCommunity} = require("./controller/CommunityController")
 const Community = require('./models/Community')
-const {commentController} = require('./controller/commentController')
+const {commentController} = require('./controller/commentController')  
+const {upload} = require("./middleware/multer");
 
 
 const PORT = 9000;
@@ -327,6 +328,15 @@ app.get('/api/kalam/comment', async (req, res)=>{
 
 
 app.post('/api/kalam/comm', commentController )
+
+
+app.post('/upload', upload.single('image'), (req, res)=> {
+
+
+  
+  console.log(req.file);
+      return res.json("Hello checking uploader");
+});
 
 
 // app.get("/api/community/profile")
