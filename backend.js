@@ -28,6 +28,7 @@ const { handleCommunity} = require("./controller/CommunityController")
 const Community = require('./models/Community')
 const {commentController} = require('./controller/commentController')  
 const {upload} = require("./middleware/multer");
+const path = require("path");
 
 
 const PORT = 9000;
@@ -334,9 +335,11 @@ app.post('/upload', upload.single('image'), (req, res)=> {
 
 
   
-  console.log(req.file);
-      return res.json("Hello checking uploader");
+  console.log("req.file",req.file);
+      return res.json(req.file.path);
 });
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
 
 // app.get("/api/community/profile")

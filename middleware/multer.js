@@ -1,24 +1,26 @@
 const multer = require('multer');
+const path = require('path')
 
 const storage = multer.diskStorage({destination: function (req, file, cb){
 
 
     console.log("hello main check")
-    console.log("First req",req);
+    // console.log("First req",req);
 
 
-    cb(null, '../uploads/profilePics')
+    cb(null, './uploads/profilePics')
 
      console.log("1st file", file)
 },
 
 filename: function (req, file, cb){
 
-    console.log("2nd req", req);
+    // console.log("2nd req", req);
+    const ext = path.extname(file.originalname)
 
     const uniqueSuffix = Date.now() + '_' + Math.round(Math.random()* 1E9)
 
-    cb(null, file.fieldname + '-' + uniqueSuffix)
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext)
 
     console.log("2nd file", file)
 
