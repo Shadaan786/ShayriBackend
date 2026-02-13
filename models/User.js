@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema({
     streak: {
         type: Number,
         default: 0
+    },
+    
+    profilePic:{
+        type: String
     }
 },
     { timestamps: true }

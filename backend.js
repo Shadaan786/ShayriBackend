@@ -14,6 +14,7 @@ const { stayLoggedIn } = require('./middleware/auth')
 const app =express();
 app.use(express.json());
 const url = require('url');
+const path = require("path");
 
 const userRoute = require('./routes/signup');
 const userRoute2 = require('./routes/login');
@@ -28,7 +29,8 @@ const { handleCommunity} = require("./controller/CommunityController")
 const Community = require('./models/Community')
 const {commentController} = require('./controller/commentController')  
 const {upload} = require("./middleware/multer");
-const path = require("path");
+const {cloudfareUploader} = require("./utilities/cloudfareUploader")
+
 
 
 const PORT = 9000;
@@ -331,13 +333,13 @@ app.get('/api/kalam/comment', async (req, res)=>{
 app.post('/api/kalam/comm', commentController )
 
 
-app.post('/upload', upload.single('image'), (req, res)=> {
+app.post('/upload', upload.single('image'), cloudfareUploader)
 
 
   
-  console.log("req.file",req.file);
-      return res.json(req.file.path);
-});
+  // console.log("req.file",req.file);
+  //     return res.json(req.file.path);
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 

@@ -1,5 +1,11 @@
 const multer = require('multer');
 const path = require('path')
+const fs = require('fs')
+const {getUser} = require('../service/auth');
+// const { request } = require('http');
+
+
+
 
 const storage = multer.diskStorage({destination: function (req, file, cb){
 
@@ -10,23 +16,31 @@ const storage = multer.diskStorage({destination: function (req, file, cb){
 
     cb(null, './uploads/profilePics')
 
+    
+
      console.log("1st file", file)
 },
 
 filename: function (req, file, cb){
 
     // console.log("2nd req", req);
+    const token = req.cookies.uid;
+    req.user = getUser(token)
+    const uuid = req.user._id;
+    console.log("uid", req.user._id);
     const ext = path.extname(file.originalname)
 
-    const uniqueSuffix = Date.now() + '_' + Math.round(Math.random()* 1E9)
+    // const uniqueSuffix = Date.now() + '_' + Math.round(Math.random()* 1E9)
 
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext)
+    cb(null, file.fieldname + '-' + uuid + ext)
 
     console.log("2nd file", file)
 
 }
 
 })
+
+
 
  const upload = multer({storage: storage})
 
@@ -52,16 +66,7 @@ filename: function (req, file, cb){
 
  // correct----------------------------------------------------------------------------------------->
 
- // Upload an image 
 
-//  cloudinary.uploader .upload( filePath,
-//      { public_id: 'shoes', } 
-    
-//     ) 
-
-//     .then((uploadResult)=>{
-//         console.log(uploadResult)
-//     })
      
 
 
@@ -82,17 +87,12 @@ filename: function (req, file, cb){
 
 
 
-// const cloudinary = require('cloudinary').v2;
+
 // const { CloudinaryStorage } = require('multer-storage-cloudinary');
 // const multer = require('multer');
  
 
-//  // Configuration
-//     cloudinary.config({ 
-//         cloud_name: 'dbcocbkit', 
-//         api_key: '195959542621838', 
-//         api_secret: '**********' // Click 'View API Keys' above to copy your API secret
-//     });
+
 
 
 //--------------------------------------------------------------------------------------------------------------->
