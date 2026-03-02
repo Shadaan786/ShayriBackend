@@ -3,13 +3,16 @@
     let imageUrl;
     const User = require('../models/User')
     const {getUser} = require('../service/auth')
+    const fs = require('fs');
+const { error } = require('console');
 
 
+    
 
     const cloudfareUploader=(req, res, next)=>{
 
 
-        console.log("checking file path", req.file.path)
+        console.log("checking file path", "./uploads/kalamAudio/output.wav")
 
         // Configuration
         cloudinary.config({ 
@@ -30,18 +33,32 @@
         
 
         
-     cloudinary.uploader .upload( req.file.path,
-       
+     cloudinary.uploader .upload( req.file.path,{
+
         
-        ) 
+        resource_type: "video"
+
+     })
 
         .then((uploadResult)=>{
             console.log(uploadResult)
 
             imageUrl = uploadResult.url;
             console.log("imageUrl", imageUrl)
+
+            fs.unlink(req.file.path,(error)=>{
+                if(error)console.log("error in deleting file", error);else{
+                    console.log("File deleted successfully");
+                }
+            });
+
             // return res.json(uploadResult.url);
             
+        })
+
+        .catch((error)=>{
+
+            console.log("error while uploading to cloudinary", error);
         })
 
             const token = req.user.uid;
@@ -50,6 +67,10 @@
         
 
         User.updateOne({_id: req.user._id}, {profilePic: imageUrl})
+
+        .then((result)=>{
+            console.log(result);
+        })
 
         .catch((error)=>{
             console.log("error", error)

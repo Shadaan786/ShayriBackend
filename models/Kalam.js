@@ -50,7 +50,11 @@ const KalamSchema = new mongoose.Schema({
     {
         timestamps: true
     }
-   ]
+   ],
+
+   kalamAudio:{
+    type: String
+   }
 
 
 }, {timestamps: true});

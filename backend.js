@@ -4,6 +4,8 @@ console.log("Port from env:", process.env.PORT);
 const express = require("express");
 const status = require("express-status-monitor");
 const cookieParser = require('cookie-parser')
+const {spawn} = require('child_process');
+
 
 
 // const shayri = require("./shayri.json")
@@ -30,6 +32,12 @@ const Community = require('./models/Community')
 const {commentController} = require('./controller/commentController')  
 const {upload} = require("./middleware/multer");
 const {cloudfareUploader} = require("./utilities/cloudfareUploader")
+const {albumController} = require("./controller/AlbumController")
+const Album = require('./models/Album');
+const {clearVoice} = require('./middleware/clearVoice');
+const {audioWave} = require("./middleware/audiowave");
+const { cloudinaryAudio } = require("./utilities/cloudinaryAudio");
+
 
 
 
@@ -299,11 +307,13 @@ app.get('/api/social', async(req, res)=>{
   req.user = getUser(token);
 
   const userId = await User.find({_id: req.user._id});
+  
 
   return res.json({
     
     allKalamsName,
-    userId
+    userId,
+    
 
   })
 })
@@ -345,5 +355,175 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
 
 // app.get("/api/community/profile")
+
+app.post("/api/album", albumController)
+
+app.get('/api/displayAlbums', async (req, res)=>{
+
+const token = req.cookies.uid;
+req.user = getUser(token);
+
+const list = await Album.find({createdBy: req.user._id})
+
+return res.json(list)
+
+})
+
+app.get('/api/albumKalams', async (req, res)=>{
+
+ const albumId =  url.parse(req.url, true).query.albumId
+ console.log("_id", albumId)
+ const token = req.cookies.uid;
+ req.user = getUser(token);
+//  const albumKalams = await Album.find({_id: albumId});
+
+ const albumKalams = await Album.find({_id: albumId}).populate('kalamCollection.kalam')
+ const kalamList = await Kalam.find({createdBy: req.user._id});
+
+ console.log("array checking", albumKalams)
+ const length = albumKalams[0].kalamCollection.length;
+
+ console.log("length", length);
+
+ return res.json({albumKalams, length, kalamList});
+
+
+
+
+
+//   Album.find({_id:albumId}).populate('kalamCollection.kalam')
+
+//   .then((data)=>{
+//      console.log("dataaa", data)
+
+//      return res.json(data)
+//   })
+
+
+  
+
+
+
+
+
+})
+
+
+app.post('/api/selection', async (req, res)=>{
+
+  // console.log(req.body.list[0]);
+
+  const selectedKalams = req.body.list;
+
+  console.log("selectedKalams", selectedKalams)
+
+ 
+
+  const objectValues = Object.values(selectedKalams)
+
+  
+
+  const length = objectValues.length;
+
+  console.log("objectValues", objectValues);
+
+
+// const allValues =  Object.values(selectedKalams);
+// console.log("all values",allValues);
+
+
+
+
+// const allValues  = Object.values(selectedKalams);
+
+const albumId = url.parse(req.url, true).query.albumId;
+
+ 
+
+ for(i=0; i<length; i++){
+
+Album.updateOne({_id: albumId}, {$push:{kalamCollection:{kalam: objectValues[i]}}})
+
+ .then((result)=>{
+  
+  console.log("Succesfully updated", result);
+ })
+
+ .catch((error)=>{
+
+  console.log("error while updating the mongo field", error)
+ })
+ }
+
+
+ Album.find({_id: albumId})
+
+ .then((afterUpdating)=>{
+console.log("Album with updated kalams")
+
+  return res.json(afterUpdating);
+ })
+  
+ .catch((error)=>{
+  console.log("error while finding the updated kalam album", error)
+  return res.json(error);
+ })
+
+
+})
+
+
+
+  
+
+app.post('/api/GalleryCover', upload.single('video'), cloudfareUploader);
+
+app.post('/upload/kalamAudio', upload.single('audio'), clearVoice, audioWave, cloudinaryAudio)
+
+  // console.log("dekh",req.file.originalname)
+  // console.log("reqbody", req.body.type);
+  // res.json("hello from buckend")
+
+
+  // console.log("req.body",req.body)
+  // console.log("req.file", req.file)
+
+
+  // res.json("Response from backend multer ha ha ha")
+
+
+// const child = spawn('ffmpeg', ['-i', "./uploads/profilePics/video-68ff816b785eb33c34d4d91f.wav", "-filter:a", "arnndn=model=./voiceModel/bd.rnnn", "-codec:a", "pcm_s24le", "./uploads/kalamAudio/output.wav"])
+
+// child.stdout.on('data', (data)=>{
+
+//     console.log("data", data);
+// })
+
+// child.stderr.on('data', (data)=>{
+
+//     console.log("stderr", data.toString());
+// })
+
+
+// child.on('error', (error)=>{
+
+//     console.log("There's an error pls look onto it", error)
+// })
+
+app.get('/api/kalam/player',(req, res)=>{
+
+  const albumId = url.parse(req.url, true).query.albumId;
+
+  Album.findOne({_id: "69a5d8f556d3fad3bbed6b02"}).populate("kalamCollection.kalam")
+
+  .then((result)=>{
+ 
+    res.json(result);
+    return
+  })
+})
+
+
+
 
 app.listen(PORT, ()=> console.log(`Server is running at ${PORT}`));

@@ -11,14 +11,36 @@ const storage = multer.diskStorage({destination: function (req, file, cb){
 
 
     console.log("hello main check")
+
+    console.log("checking req.body", req.body)
     // console.log("First req",req);
+    
+    // console.log("req", req)
+
+    const fieldName = file.fieldname;
+
+    if(fieldName === 'video'){
+
+        cb(null, './uploads/kalamVideo');
+    }else if(fieldName === 'audio'){
 
 
-    cb(null, './uploads/profilePics')
+        cb(null, './uploads/kalamAudio');
+        
+        return
+    }else if(fieldName === 'image'){
+
+
+            cb(null, './uploads/profilePics')
 
     
 
      console.log("1st file", file)
+
+    }
+
+
+
 },
 
 filename: function (req, file, cb){
@@ -30,9 +52,9 @@ filename: function (req, file, cb){
     console.log("uid", req.user._id);
     const ext = path.extname(file.originalname)
 
-    // const uniqueSuffix = Date.now() + '_' + Math.round(Math.random()* 1E9)
+    req.uniqueSuffix = Date.now() + '_' + Math.round(Math.random()* 1E9)
 
-    cb(null, file.fieldname + '-' + uuid + ext)
+    cb(null, file.fieldname + '-' + req.uniqueSuffix + ext)
 
     console.log("2nd file", file)
 
