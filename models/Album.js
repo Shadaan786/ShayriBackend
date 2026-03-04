@@ -29,6 +29,11 @@ const AlbumSchema = new Schema({
         type: String
     },
 
+    isLive:{
+        type: Boolean,
+        default: false
+    },
+
     createdBy:{
 
         type: mongoose.Schema.Types.ObjectId,

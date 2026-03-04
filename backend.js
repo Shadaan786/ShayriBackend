@@ -523,6 +523,25 @@ app.get('/api/kalam/player',(req, res)=>{
   })
 })
 
+app.post('/api/album/status', (req, res)=>{
+
+  const albumId = url.parse(req.url, true).query.albumId;
+
+  Album.updateOne({_id: albumId},{$set:{isLive: true}})
+
+  .then(()=>{
+
+    console.log("Kalam published successfully")
+
+    res.json("Kalam Published successfully")
+    return;
+  })
+
+  .catch((error)=>{
+    console.log("error while uploading to mongoDB", error)
+  })
+})
+
 
 
 
