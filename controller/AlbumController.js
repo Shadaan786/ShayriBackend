@@ -25,4 +25,49 @@ req.user = getUser(token);
    })
 }
 
-module.exports = {albumController};
+const albumCoverController=(req, res, next)=>{
+
+   const name = (req.body.name).toString()
+
+
+        const token = req.cookies.uid;
+
+        req.user = getUser(token);
+
+        console.log("checking undefined", req.user._id);
+
+      //  const albumName = req.body.name; 
+      //   console.log("albumName", albumName)
+
+      //   const strAlbumName = albumName.toString()
+
+      //   console.log("checking_req.body", strAlbumName);
+
+        const category = req.fieldName;
+        console.log("req.fieldName", category)
+
+        
+            Album.create({
+                name: name,
+                albumCover: req.imageLink,
+                createdBy: req.user._id
+            })
+
+            .then((mongoDBResult)=>{
+
+                console.log("albumCover_URL", req.albumCvrUrl)
+                console.log("mongoDBResult ln: 59", mongoDBResult)
+               return res.json({imageUrl: req.albumCvrUrl})
+            })
+
+            .catch((error)=>{
+
+                console.log("Error while uploading to MongoDB", error);
+
+                return;
+            })
+        
+
+}
+
+module.exports = {albumController, albumCoverController};

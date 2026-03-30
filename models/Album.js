@@ -30,8 +30,8 @@ const AlbumSchema = new Schema({
     },
 
     isLive:{
-        type: Boolean,
-        default: false
+        type: Number,
+        default: 0
     },
 
     createdBy:{

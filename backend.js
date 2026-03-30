@@ -37,8 +37,8 @@ const Album = require('./models/Album');
 const {clearVoice} = require('./middleware/clearVoice');
 const {audioWave} = require("./middleware/audiowave");
 const { cloudinaryAudio } = require("./utilities/cloudinaryAudio");
-
-
+const {albumCoverController} = require("./controller/AlbumController");
+const {handleUserProfile} = require("./controller/userController");
 
 
 const PORT = 9000;
@@ -169,7 +169,7 @@ app.get("/api/users", async (req, res)=>{
   const token = req.cookies.uid;
   const  user = getUser(token);
   req.user = user;
-  const userDb = await User.find({_id: req.user._id}, {name: 1, createdAt: 1, _id: 0});
+  const userDb = await User.find({_id: req.user._id}, {name: 1, createdAt: 1, profilePic: 1, _id: 0});
 
   
   // const hello = userDb[0];
@@ -343,7 +343,7 @@ app.get('/api/kalam/comment', async (req, res)=>{
 app.post('/api/kalam/comm', commentController )
 
 
-app.post('/upload', upload.single('image'), cloudfareUploader)
+app.post('/upload', upload.single('image'), cloudfareUploader, handleUserProfile)
 
 
   
@@ -523,11 +523,11 @@ app.get('/api/kalam/player',(req, res)=>{
   })
 })
 
-app.post('/api/album/status', (req, res)=>{
+app.post   ('/api/album/status', (req, res)=>{
 
   const albumId = url.parse(req.url, true).query.albumId;
 
-  Album.updateOne({_id: albumId},{$set:{isLive: true}})
+  Album.updateOne({_id: albumId},{$bit:{isLive: {xor: 1}}})
 
   .then(()=>{
 
@@ -543,6 +543,31 @@ app.post('/api/album/status', (req, res)=>{
 })
 
 
+app.get('/api/albumsLive', (req, res)=>{
+  Album.find({isLive: 1})
 
+  .then((result)=>{
+    console.log("result", result)
+
+    return res.json(result)
+  })
+
+  .catch((error)=>{
+    console.log("error from mongodb", error)
+
+    return
+  })
+})
+
+app.post('/api/upload/albumCover', upload.single('albumCover'), cloudfareUploader, albumCoverController)
+
+app.get("/health", (req, res) => {
+
+  console.log("request recieved fom esp32")
+  res.status(200).json({
+    ok: true,
+    message: "Server is running"
+  });
+});
 
 app.listen(PORT, ()=> console.log(`Server is running at ${PORT}`));

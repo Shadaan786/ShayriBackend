@@ -1,7 +1,7 @@
 const User = require("../models/User");
 //uuid
 const {v4: uuidv4} = require('uuid')
-const { setUser } = require('../service/auth')
+const { setUser, getUser } = require('../service/auth')
 
 
 
@@ -104,6 +104,22 @@ async function handleUserSignup(req, res) {
 
     }
 
-module.exports = { handleUserSignup, handleUserLogin};
+    const handleUserProfile=(req, res, next)=>{
+      
+        const token = req.cookies.uid;
+
+        req.user = getUser(token);
+
+        User.updateOne({_id: req.user._id}, {profilePic: req.imageLink})
+
+        .then(()=>{
+            console.log("Profile pic  uploaded sucessfully");
+
+            return res.json(req.imageLink)
+        })
+
+    }
+
+module.exports = { handleUserSignup, handleUserLogin, handleUserProfile};
 // module.exports = { handleUserLogin };
 

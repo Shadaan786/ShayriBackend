@@ -19,9 +19,13 @@ const storage = multer.diskStorage({destination: function (req, file, cb){
 
     const fieldName = file.fieldname;
 
+    req.fieldName = fieldName;
+
     if(fieldName === 'video'){
 
         cb(null, './uploads/kalamVideo');
+
+        return;
     }else if(fieldName === 'audio'){
 
 
@@ -36,6 +40,14 @@ const storage = multer.diskStorage({destination: function (req, file, cb){
     
 
      console.log("1st file", file)
+
+     return;
+
+    }else if(fieldName === 'albumCover'){
+
+        cb(null, './uploads/albumCovers')
+
+        return;
 
     }
 
