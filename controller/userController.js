@@ -2,6 +2,9 @@ const User = require("../models/User");
 //uuid
 const {v4: uuidv4} = require('uuid')
 const { setUser, getUser } = require('../service/auth')
+const bcrypt = require('bcrypt');
+const saltRounds = 12;
+
 
 
 
@@ -17,12 +20,42 @@ async function handleUserSignup(req, res) {
                 message: "All fields (name, email, password) are required"
             });
         }
-        
-        const newUser = await User.create({
+
+        bcrypt.hash(password, saltRounds)
+
+        .then((hash)=>{
+            console.log("hashed password", hash);
+
+            // Storing Hashed Password in DataBase
+
+             User.create({
             name,
             email,
-            password,
-        });
+            password: hash
+        })
+
+        .then(()=>{
+
+            console.log("Hashed Password stored successfully in DataBase");
+        })
+
+        .catch((error)=>{
+
+            console.log("Error uploading Hashed Password to MongoDb", error); 
+        })
+
+            // bcrypt.compare(password, hash)
+
+            // .then((check)=>{
+            //     console.log("decrypted password", check);
+            // })
+        })
+
+        .catch((error)=>{
+            console.log("Error while Hashng Password", error);
+        })
+        
+       
         
         console.log("✅ User created successfully:", newUser._id);
 
@@ -69,26 +102,18 @@ async function handleUserSignup(req, res) {
 
         const {email, password} = req.body;
 
-        const user = await User.findOne({email, password})
-        
-        if(!user){
+        const user = await User.findOne({email})
 
-           
-          return  res.json({
-            success: true,
-            msg: "data not found",
-            redirectUrl: '/Signup'
 
-            
-        });
+        console.log("user_for_hashing", user);
 
-        
+        bcrypt.compare(password, user.password)
 
-        }else{
+        .then((result)=>{
 
-        //      const sessionId = uuidv4();
-        // setUser(sessionId, user)
-
+            if(result){
+                
+                
         const token = setUser(user)
         res.cookie("uid", token, {
   httpOnly: true,
@@ -99,7 +124,38 @@ async function handleUserSignup(req, res) {
 });
         // res.cookie('uid', sessionId)
             return res.status(200).json({msg: "User found successfully"})
-        }
+            }else{
+
+                 
+          return  res.json({
+            success: true,
+            msg: "data not found",
+            redirectUrl: '/Signup'
+
+            
+        });
+
+
+            }
+        })
+
+        .catch((error)=>{
+
+            console.log("Error while decrypting Password", error);
+        })
+        
+        // if(!user){
+
+          
+
+        
+
+        // }else{
+
+        // //      const sessionId = uuidv4();
+        // // setUser(sessionId, user)
+
+        // }
 
 
     }

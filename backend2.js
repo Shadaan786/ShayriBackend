@@ -13,6 +13,8 @@ const app = express();
 const allClient = new Map();
 const communities = new Map();
 const communities2 = new Map();
+const globChat = new Map();
+// let userId;
 // let commName;
 
 
@@ -36,11 +38,17 @@ const ws = new webSocket({
 
 ws.on('connection', (connection, request) => {
 
-    const username = url.parse(request.url, true).query.username
+    const username = url.parse(request.url, true).query.username;
+
+    const userId = url.parse(request.url, true).query.userId;
+     console.log("checking user id param", userId)
+     console.log("checking userName", username)
+
+     console.log("Checking_url", request.url);
 
     console.log(`${username} has connected`);
 
-    allClient.set(username, connection)
+    allClient.set(userId, connection)
 
     // console.log(allClient);
 
@@ -56,12 +64,36 @@ ws.on('connection', (connection, request) => {
         const real_data = JSON.parse(data)
         // console.log(real_data.payload.content)
 
+        const userIdPayload = real_data.payload.userId;
+
+        console.log("real_datal", real_data)
+
         if (real_data.type === "global_chat") {
 
-            for (const [key, value] of allClient) {
-                const conn = allClient.get(`${key}`)
-                conn.send(real_data.payload.content)
+            globChat.set(userId, connection)
+
+            for (const [key, value] of globChat){
+
+                if(key === userIdPayload){
+                    continue;
+                }
+
+                const conn = globChat.get(`${key}`)
+                conn.send(JSON.stringify(real_data.payload))
             }
+
+
+
+            // for (const [key, value] of allClient) {
+
+            //      if(key === userIdPayload) 
+            //     {
+            //         continue;
+            //     }
+
+            //     const conn = allClient.get(`${key}`)
+            //     conn.send(real_data.payload.content)
+            // }
         } else if (real_data.type === "joining_community") {
 
             const communityId = real_data.payload.communityId;

@@ -570,4 +570,18 @@ app.get("/health", (req, res) => {
   });
 });
 
+// User Data for global chat
+app.get('/globalchat/userInfo', (req, res)=>{
+
+  const token = req.cookies.uid;
+
+  req.user = getUser(token);
+
+  User.findOne({_id: req.user._id})
+
+  .then((userInfo)=>{
+    return res.json(userInfo)
+  })
+})
+
 app.listen(PORT, ()=> console.log(`Server is running at ${PORT}`));
