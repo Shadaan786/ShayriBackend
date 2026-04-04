@@ -28,6 +28,11 @@ req.user = getUser(token);
 const albumCoverController=(req, res, next)=>{
 
    const name = (req.body.name).toString()
+   const albumCategory = (req.body.category).toString();
+
+   console.log("checking req.body", req.body)
+
+
 
 
         const token = req.cookies.uid;
@@ -50,14 +55,15 @@ const albumCoverController=(req, res, next)=>{
             Album.create({
                 name: name,
                 albumCover: req.imageLink,
-                createdBy: req.user._id
+                createdBy: req.user._id,
+                category: albumCategory
             })
 
             .then((mongoDBResult)=>{
 
-                console.log("albumCover_URL", req.albumCvrUrl)
+                console.log("albumCover_URL", req.imageLink)
                 console.log("mongoDBResult ln: 59", mongoDBResult)
-               return res.json({imageUrl: req.albumCvrUrl})
+               return res.json({imageUrl: req.imageLink})
             })
 
             .catch((error)=>{

@@ -16,13 +16,14 @@
     const cloudfareUploader=(req, res, next)=>{
 
 
-        console.log("checking file path", "./uploads/kalamAudio/output.wav")
+        console.log("checking file path", req.file.path)
+        console.log("checking req.body", req.body)
 
         // Configuration
         cloudinary.config({ 
             cloud_name: 'dbcocbkit', 
             api_key: '195959542621838', 
-            api_secret: '1E1Jov0ZhXHRglseBZJeCwJFhAA'
+            api_secret: '1E1Jov0ZhXHRglseBZJeCwJFhAA',
         });
 
 
@@ -40,7 +41,9 @@
      cloudinary.uploader .upload( req.file.path,{
 
         
-        resource_type: "image"
+        resource_type: "image",
+        timeout: 30000
+        
 
      })
 
@@ -52,7 +55,9 @@
             console.log("imageUrl", imageUrl)
 
             fs.unlink(req.file.path,(error)=>{
-                if(error)console.log("error in deleting file", error);else{
+                if(error)console.log("error in deleting file", error);
+                
+                else{
                     console.log("File deleted successfully");
                 }
             })
@@ -90,7 +95,9 @@
 
         .catch((error)=>{
 
-            console.log("error while uploading to cloudinary", error);
+            console.log("error while uploading to cloudinary", error)
+            
+            console.dir(error, {depth: null});
         })
 
          

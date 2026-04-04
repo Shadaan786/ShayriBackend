@@ -161,36 +161,54 @@ app.post("api/sher/Kalam",  async (req, res) =>{
 
 app.get("/api/sher/Allama_Iqbal/:id", (req, res)=>{
     const id =  Number(req.params.id);
-    const sher = shayri.find((sher)=> sher.id === id);
+    const sher = Shayri.find((sher)=> sher.id === id);
     return res.json(sher);
 })
 
-app.get("/api/users", async (req, res)=>{
+app.get('/api/userId',(req, res)=>{
+
   const token = req.cookies.uid;
-  const  user = getUser(token);
-  req.user = user;
-  const userDb = await User.find({_id: req.user._id}, {name: 1, createdAt: 1, profilePic: 1, _id: 0});
+  req.user = getUser(token);
+
+  User.findOne({_id: req.user._id})
+  .then((mongoRes)=>{
+
+     return res.json(mongoRes);
+
+
+  })
+
+ 
+})
+
+app.post("/api/users", async (req, res)=>{
+  // const token = req.cookies.uid;
+  // const  user = getUser(token);
+  // req.user = user;
+
+  const userId = req.body.userId;
+  const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0});
 
   
   // const hello = userDb[0];
   // const hello = userDb[0].name;
-    const len = await Kalam.find({createdBy: req.user._id});
+    const len = await Kalam.find({createdBy: userId});
     const leng = len.length
    
     //Total contributions made in nazm
-    const nazm = await Kalam.find({createdBy: req.user._id, type: "nazm"})
+    const nazm = await Kalam.find({createdBy: userId, type: "nazm"})
     const nazmLen = nazm.length;
     
     // Total contributions made in ghazal
-    const ghazal = await Kalam.find({createdBy: req.user._id, type: "ghazal"});
+    const ghazal = await Kalam.find({createdBy: userId, type: "ghazal"});
     const ghazalLen = ghazal.length;
 
     // Total contributions made in shayri
-    const sherCollection = await Kalam.find({createdBy: req.user._id, type: "sher"});
+    const sherCollection = await Kalam.find({createdBy: userId, type: "sher"});
     const sherCollectionLen = sherCollection.length;
 
 
-    const counter = await User.find({_id: req.user._id}, {_id: 0, streak: 1})
+    const counter = await User.find({_id: userId}, {_id: 0, streak: 1})
 
   
 

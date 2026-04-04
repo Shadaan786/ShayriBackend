@@ -39,6 +39,10 @@ const AlbumSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user',
 
+    },
+    category:{
+        type: String,
+        require: true
     }
 
 

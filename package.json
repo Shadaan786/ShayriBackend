@@ -4,6 +4,8 @@
   "main": "backend.js",
   "scripts": {
     "start": "node backend.js",
+    "aut": "npx nodemon backend.jd",
+    "aut2": "npx nodemon backend2.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "reboot": "npx nodemon backend.js"
   },

@@ -104,6 +104,17 @@ async function handleUserSignup(req, res) {
 
         const user = await User.findOne({email})
 
+        if(!user){
+
+            return res.json({
+            success: true,
+            msg: "data not found",
+            redirectUrl: '/Signup'
+
+            
+        })
+        }
+
 
         console.log("user_for_hashing", user);
 
@@ -128,12 +139,9 @@ async function handleUserSignup(req, res) {
 
                  
           return  res.json({
-            success: true,
-            msg: "data not found",
-            redirectUrl: '/Signup'
-
-            
-        });
+            success: false,
+            message: "incorrect login credentials"
+          });
 
 
             }
