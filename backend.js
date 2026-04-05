@@ -1,6 +1,6 @@
 require("dotenv").config();
 console.log("Port from env:", process.env.PORT);
-
+const http = require('http');
 const express = require("express");
 const status = require("express-status-monitor");
 const cookieParser = require('cookie-parser')
@@ -13,10 +13,12 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 // const Shayri = require('./models/Shayri');
 const { stayLoggedIn } = require('./middleware/auth')
+
 const app =express();
 app.use(express.json());
 const url = require('url');
 const path = require("path");
+const server = http.createServer(app)
 
 const userRoute = require('./routes/signup');
 const userRoute2 = require('./routes/login');
@@ -41,7 +43,6 @@ const {albumCoverController} = require("./controller/AlbumController");
 const {handleUserProfile} = require("./controller/userController");
 
 
-const PORT = 9000;
 
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app"], 
@@ -602,4 +603,6 @@ app.get('/globalchat/userInfo', (req, res)=>{
   })
 })
 
-app.listen(PORT, ()=> console.log(`Server is running at ${PORT}`));
+
+
+module.exports = server
