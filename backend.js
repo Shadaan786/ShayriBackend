@@ -318,20 +318,29 @@ app.get("/api/community/Chat", async(req, res)=>{
 
 app.get('/api/social', async(req, res)=>{
 
-  const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
-  const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1})
+  console.log('infinite scroll route hit')
 
+   const page = url.parse(req.url, true).query.page;
+  const limit = url.parse(req.url, true).query.limit;
+
+
+  const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
+  const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1}).skip(page*limit - limit).limit(limit);
+ 
   const token = req.cookies.uid;
 
   req.user = getUser(token);
 
   const userId = await User.find({_id: req.user._id});
   
+  const netKalams = await Kalam.find();
+  const totalLength = netKalams.length;
 
   return res.json({
     
     allKalamsName,
     userId,
+    totalLength
     
 
   })
@@ -562,20 +571,54 @@ app.post   ('/api/album/status', (req, res)=>{
 })
 
 
-app.get('/api/albumsLive', (req, res)=>{
-  Album.find({isLive: 1})
+app.post('/api/albumsLive', (req, res)=>{
 
-  .then((result)=>{
-    console.log("result", result)
+  console.log("first req.body", req.body.category[0])
 
-    return res.json(result)
-  })
+  const category = req.body.category[0]
 
-  .catch((error)=>{
-    console.log("error from mongodb", error)
+  if(category === 'all'){
 
-    return
-  })
+    console.log("req.body", req.body.category)
+    Album.find({isLive: 1})
+
+    .then((allAlbums)=>{
+
+      res.json(allAlbums)
+
+
+    })
+    .catch((error)=>{
+
+      console.log("error finding all live albums", error)
+
+      return res.json(error)
+    })
+  }else if(category === "romantic"){
+    Album.find({category: "romantic"})
+
+      .then((romanticAlbums)=>{
+
+        return res.json(romanticAlbums)
+      }).catch((error)=>{
+        console.log("Error while finding Romantic albums", error)
+
+        return res.json(error);
+      })
+    
+  }else if(category === 'motivation'){
+
+    Album.find({category: "motivation"})
+    .then((motivationAlbums)=>{
+
+      return res.json(motivationAlbums);
+    }).catch((error)=>{
+      console.log("Error while searching motivation albums", error);
+      return res.json(error);
+    })
+  }else{
+    ;
+  }
 })
 
 app.post('/api/upload/albumCover', upload.single('albumCover'), cloudfareUploader, albumCoverController)
@@ -602,6 +645,53 @@ app.get('/globalchat/userInfo', (req, res)=>{
     return res.json(userInfo)
   })
 })
+
+// app.get('/api/albumRomantic', (req, res)=>{
+
+//   Album.find({category: 'romantic'})
+
+//   .then((romanticResult)=>{
+
+//     res.json(romanticResult);
+//     return
+
+//   }).catch((error)=>{
+
+//     console.log("error while fetching romantic album", error);
+
+//     return res.json(error)
+//   })
+// })
+// app.get('/api/albumMotivation', (req, res)=>{
+
+//   Album.find({category: 'motivation'})
+
+//   .then((romanticResult)=>{
+
+//     res.json(romanticResult);
+
+//   }).catch((error)=>{
+
+//     console.log("error while fetching romantic album", error);
+
+//     return res.json(error)
+//   })
+// })
+// app.get('/api/albumVision', (req, res)=>{
+
+//   Album.find({category: 'vision'})
+
+//   .then((romanticResult)=>{
+
+//     res.json(romanticResult);
+
+//   }).catch((error)=>{
+
+//     console.log("error while fetching romantic album", error);
+
+//     return res.json(error)
+//   })
+// })
 
 
 
