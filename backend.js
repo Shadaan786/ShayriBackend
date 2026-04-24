@@ -41,6 +41,13 @@ const {audioWave} = require("./middleware/audiowave");
 const { cloudinaryAudio } = require("./utilities/cloudinaryAudio");
 const {albumCoverController} = require("./controller/AlbumController");
 const {handleUserProfile} = require("./controller/userController");
+const {handleFollow, getFollowers, handleUnfollow} = require('./controller/followController');
+const tracker = require('./controller/userTracker');
+const sendMail  = require('./service/mailer')
+const workerStarter = require('./jobProcessor');
+const {messenger, message} = require('./firebase')
+const mqStarter = require('./send')
+const reciever = require('./reciever')
 
 
 
@@ -51,6 +58,18 @@ app.use(cors({
       allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(cookieParser());  
+
+// rabbitMQ starter
+
+mqStarter();
+
+// starting rabbitMQ reciever
+
+reciever();
+
+// Starting worker task queue
+
+// workerStarter();
 
 // app.use(status());
 app.use("/signup", userRoute);
@@ -182,12 +201,13 @@ app.get('/api/userId',(req, res)=>{
  
 })
 
-app.post("/api/users", async (req, res)=>{
+app.get("/api/users", async (req, res)=>{
   // const token = req.cookies.uid;
   // const  user = getUser(token);
   // req.user = user;
 
-  const userId = req.body.userId;
+  // const userId = req.body.userId;
+  const userId = url.parse(req.url, true).query.userId
   const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0});
 
   
@@ -211,6 +231,8 @@ app.post("/api/users", async (req, res)=>{
 
     const counter = await User.find({_id: userId}, {_id: 0, streak: 1})
 
+    const netFollowers = await User.findOne({_id: userId},{followers: 1, _id: 0})
+
   
 
   
@@ -221,6 +243,7 @@ app.post("/api/users", async (req, res)=>{
     ghazalLen,
     sherCollectionLen,
     counter,
+    netFollowers
     
 
   });
@@ -571,16 +594,19 @@ app.post   ('/api/album/status', (req, res)=>{
 })
 
 
-app.post('/api/albumsLive', (req, res)=>{
+app.get('/api/albumsLive', (req, res)=>{
 
-  console.log("first req.body", req.body.category[0])
+  console.log("req.query", req.query)
 
-  const category = req.body.category[0]
+  const category = url.parse(req.url, true).query.category;
+  const limit = url.parse(req.url, true).query.limit;
+  const page = url.parse(req.url, true).query.page;
+  console.log("checking_category", category)
 
   if(category === 'all'){
 
-    console.log("req.body", req.body.category)
-    Album.find({isLive: 1})
+    // console.log("req.body", req.body.category)
+    Album.find({isLive: 1}).skip(page*limit - limit).limit(limit)
 
     .then((allAlbums)=>{
 
@@ -595,7 +621,7 @@ app.post('/api/albumsLive', (req, res)=>{
       return res.json(error)
     })
   }else if(category === "romantic"){
-    Album.find({category: "romantic"})
+    Album.find({isLive: 1, category: "romantic"}).skip(page*limit - limit).limit(limit)
 
       .then((romanticAlbums)=>{
 
@@ -608,7 +634,7 @@ app.post('/api/albumsLive', (req, res)=>{
     
   }else if(category === 'motivation'){
 
-    Album.find({category: "motivation"})
+    Album.find({isLive: 1, category: "motivation"}).skip(page*limit - limit).limit(limit)
     .then((motivationAlbums)=>{
 
       return res.json(motivationAlbums);
@@ -693,6 +719,52 @@ app.get('/globalchat/userInfo', (req, res)=>{
 //   })
 // })
 
+app.post('/api/follow', handleFollow)
+
+app.get('/api/getFollowers', getFollowers)
+
+app.post('/api/unfollow', handleUnfollow)
+
+app.get('/api/trackUser', tracker)
 
 
+app.post('/api/searchUser',(req,res)=>{
+
+  const query = req.body.query
+  console.log("query",query)
+  
+  if(!query) return 
+  const regex = new RegExp(`^${query}`, 'i')
+
+  User.find({name:{$regex: regex}})
+  .then((mongoResult)=>{
+  
+    
+    console.log(mongoResult)
+   return res.json(mongoResult)
+    
+  })
+})
+
+// export const jobQueue = [];
+
+messenger.send(message)
+
+app.post('/api/FCMtoken',(req, res)=>{
+
+  const fcmToken = req.body.fcmToken
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+
+  User.updateOne({_id: req.user._id}, {FCMtoken: fcmToken})
+  .then((mongores)=>{
+    console.log("token updated successfully", mongores);
+    return res.status(201).json("token updated successfully")
+  }).catch((error)=>{
+    console.log("error while updating fcm token", error)
+    return res.status(404).json(error);
+  })
+})
+
+// sendMail("shadaan.dev@gmail.com")
 module.exports = server

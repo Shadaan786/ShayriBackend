@@ -4,7 +4,9 @@ const {v4: uuidv4} = require('uuid')
 const { setUser, getUser } = require('../service/auth')
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
-
+const sendMail = require('../service/mailer')
+const jobQueue = require('../jobQueue')
+const mqStarter = require('../send');
 
 
 
@@ -36,45 +38,50 @@ async function handleUserSignup(req, res) {
 
         .then(()=>{
 
-            console.log("Hashed Password stored successfully in DataBase");
+            console.log("User created successfully and hashed Password stored successfully in DataBase");
+             console.log("✅ User created successfully:");
+            //  jobQueue.push({
+            //     job_type: "welcome_mail",
+            //     email: email
+            //  })
+
+             mqStarter(JSON.stringify({
+                job_type: "welcome_mail",
+                email: email
+             }))
+
+               
+
+              
+            
+                return  res.status(201).json({
+            success: true, 
+            redirectUrl: '/',
+            message: "Signup successful",
+            });
+        
+             
+
+                // console.log("mailResponse", mailResponse)
+
+
+
+
+             
+
         })
 
         .catch((error)=>{
 
-            console.log("Error uploading Hashed Password to MongoDb", error); 
+            console.log("Error while creating a user", error); 
         })
 
-            // bcrypt.compare(password, hash)
-
-            // .then((check)=>{
-            //     console.log("decrypted password", check);
-            // })
+          
         })
 
         .catch((error)=>{
             console.log("Error while Hashng Password", error);
         })
-        
-       
-        
-        console.log("✅ User created successfully:", newUser._id);
-
-        if(name === name &&  email === email && password === password){
-          return  res.status(201).json({
-            success: true, 
-            redirectUrl: '/',
-            message: "Signup successful",
-            userId: newUser._id});
-
-        //     return res.status(201).json({
-        //     message: "Signup successful",
-        //     success: true,
-        //     userId: newUser._id
-        // })
-        }else{
-          return  res.json({success: false, message: "condition not met"});
-        }
-        
         
         
     } catch (error) {
@@ -132,6 +139,7 @@ async function handleUserSignup(req, res) {
   sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
   path: "/",  // allow cookie on all routes
   maxAge: 24 * 60 * 60 * 1000, // 1 day
+  Headers
 });
         // res.cookie('uid', sessionId)
             return res.status(200).json({msg: "User found successfully"})

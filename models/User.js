@@ -1,3 +1,4 @@
+const { type } = require("firebase/firestore/pipelines");
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
@@ -26,7 +27,34 @@ const UserSchema = new mongoose.Schema({
     
     profilePic:{
         type: String
-    }
+    },
+
+    FCMtoken:{
+        type: String,
+        unique: true
+    },
+
+    followers:[
+        {
+            follower:{
+                type: String
+            },
+
+            _id: false
+        }
+    ],
+    notifications:[
+        {
+            notification: {
+                type: String
+            },
+            _id: false,
+            
+        },
+        {
+            timestamps: true
+        }
+    ]
 },
     { timestamps: true }
 );
