@@ -4,6 +4,7 @@ const url = require('url');
 const {messenger} = require('../firebase')
 const mqStarter = require('../send');
 const { score } = require('firebase/firestore/pipelines');
+const {gen} = require('../send');
 
 
 const handleFollow=async(req, res)=>{
@@ -15,6 +16,15 @@ const handleFollow=async(req, res)=>{
 
     const fcm =await User.findOne({_id: userId});
     const fctoken =  fcm.FCMtoken;
+
+    console.log("fcm", fcm)
+
+    // console.log(fctoken);
+
+    // if(!fctoken){
+    //     console.log("Error while searching for fcm token in User document")
+    //     return
+    // }
 
 
     User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}})
@@ -47,7 +57,9 @@ const handleFollow=async(req, res)=>{
         }
 
         // messenger.send(message)
-        mqStarter(JSON.stringify(jobData))
+        // mqStarter(JSON.stringify(jobData))
+
+        gen(JSON.stringify(jobData))
 
 
 

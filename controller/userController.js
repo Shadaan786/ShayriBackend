@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 12;
 const sendMail = require('../service/mailer')
 const jobQueue = require('../jobQueue')
-const mqStarter = require('../send');
+const mq = require('../send');
 
 
 

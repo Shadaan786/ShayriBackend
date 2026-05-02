@@ -46,7 +46,8 @@ const tracker = require('./controller/userTracker');
 const sendMail  = require('./service/mailer')
 const workerStarter = require('./jobProcessor');
 const {messenger, message} = require('./firebase')
-const mqStarter = require('./send')
+const {mq} = require('./send')
+const {gen} = require('./send');
 const reciever = require('./reciever')
 
 
@@ -61,7 +62,7 @@ app.use(cookieParser());
 
 // rabbitMQ starter
 
-mqStarter();
+mq(makeSure = 1);
 
 // starting rabbitMQ reciever
 
