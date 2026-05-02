@@ -749,7 +749,7 @@ app.post('/api/searchUser',(req,res)=>{
 
 // export const jobQueue = [];
 
-messenger.send(message)
+// messenger.send(message)
 
 app.post('/api/FCMtoken',(req, res)=>{
 
