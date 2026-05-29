@@ -56,7 +56,7 @@ const offlineNotificationHandler = require('./controller/offlineNotificationCont
 
 
 app.use(cors({
-     origin: ["http://localhost:5173", "https://shayriclub.vercel.app"], 
+     origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app/"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
     credentials: true,     
       allowedHeaders: ['Content-Type', 'Authorization']
