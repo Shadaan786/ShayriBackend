@@ -48,7 +48,10 @@ const workerStarter = require('./jobProcessor');
 const {messenger, message} = require('./firebase')
 const {mq} = require('./send')
 const {gen} = require('./send');
-const reciever = require('./reciever')
+const reciever = require('./reciever');
+const { lookupService } = require("dns");
+const {handleUserLogout} = require('./controller/userController')
+const offlineNotificationHandler = require('./controller/offlineNotificationController')
 
 
 
@@ -62,11 +65,20 @@ app.use(cookieParser());
 
 // rabbitMQ starter
 
-mq(makeSure = 1);
+const startMQ = async()=>{
+     await mq(1)
+      reciever(1);
+    
+}
+
+   startMQ();
+
 
 // starting rabbitMQ reciever
 
-reciever();
+
+
+
 
 // Starting worker task queue
 
@@ -202,7 +214,7 @@ app.get('/api/userId',(req, res)=>{
  
 })
 
-app.get("/api/users", async (req, res)=>{
+app.get("/api/users", stayLoggedIn, async (req, res)=>{
   // const token = req.cookies.uid;
   // const  user = getUser(token);
   // req.user = user;
@@ -349,7 +361,7 @@ app.get('/api/social', async(req, res)=>{
 
 
   const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
-  const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1}).skip(page*limit - limit).limit(limit);
+  const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
  
   const token = req.cookies.uid;
 
@@ -757,13 +769,115 @@ app.post('/api/FCMtoken',(req, res)=>{
   const token = req.cookies.uid;
   req.user = getUser(token);
 
-  User.updateOne({_id: req.user._id}, {FCMtoken: fcmToken})
+  User.updateOne({_id: req.user._id}, {$addToSet:{FCMtoken: {token: fcmToken}}})
   .then((mongores)=>{
     console.log("token updated successfully", mongores);
     return res.status(201).json("token updated successfully")
   }).catch((error)=>{
     console.log("error while updating fcm token", error)
-    return res.status(404).json(error);
+    return res.status(404).json("error");
+  })
+})
+
+app.get('/api/notifictions', (req, res)=>{
+  const userId = url.parse(req.url, true).query.uuid
+
+  User.findOne({_id: userId}, {_id: 0, notifications: 1})
+  .then((resultFound)=>{
+    console.log("resultFound", resultFound);
+    if(resultFound === null){
+      return res.json("No notifications");
+    }
+    return res.status(201).json(resultFound);
+  }).catch((error)=>{
+
+    console.log("Error while searching for user notification")
+   return res.json("Error while fetching user notification from backend")
+  })
+})
+
+app.get('/api/logout', stayLoggedIn, handleUserLogout)
+
+app.get('/api/offlineNotifications', offlineNotificationHandler)
+
+app.post('/api/customKalam', (req, res)=>{
+  console.log("req.body", req.body)
+
+  const { title,
+      content,
+      badgeBg,
+      badgeBorder,
+      autoMainColor,
+      resolvedTitleColor,
+      titleFs,
+      resolvedTitleFamily,
+      resolvedContentColor,
+      contentFs,
+      resolvedContentFamily,
+      subColor,
+      backdrop,
+      resolvedTextColor,
+      activeMoods,
+      type,
+      bgTab,
+      customColor,
+      selectedColor,
+      bgOpacity,
+      scrim} = req.body
+
+      const token = req.cookies.uid;
+      req.user = getUser(token)
+
+  Kalam.create({
+      name: title,
+      content: content,
+      createdBy: req.user._id,
+      type: type,
+      customStyles:{
+      badgeBg,
+      badgeBorder,
+      autoMainColor,
+      resolvedTitleColor,
+      titleFs,
+      resolvedTitleFamily,
+      resolvedContentColor,
+      contentFs,
+      resolvedContentFamily,
+      subColor,
+      backdrop,
+      resolvedTextColor,
+      activeMoods,
+      bgTab,
+      customColor,
+      selectedColor,
+      bgOpacity,
+      scrim
+      
+      }
+  }).then((customKalam)=>{
+    console.log("custom kalam created successfully", customKalam)
+
+    return res.json(customKalam)
+  }).catch ((error)=>{
+    console.log("Error while creating custom kalam", error)
+
+    return res.json(error)
+  })
+
+
+})
+
+app.get('/api/customKalam',(req, res)=>{
+
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+  Kalam.find({createdBy: req.user._id},{customStyles: 1, _id: 1, name: 1, type: 1, content: 1})
+  .then((customKalamFound)=>{
+    console.log("customKalamFound", customKalamFound)
+    return res.json(customKalamFound)
+  }).catch((error)=>{
+    console.log("error while finding custom kalams", error)
+    return res.json("error", error)
   })
 })
 

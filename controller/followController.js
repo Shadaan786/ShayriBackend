@@ -14,8 +14,48 @@ const handleFollow=async(req, res)=>{
     const token = req.cookies.uid;
     req.user = getUser(token);
 
+    const follower = await User.findOne({_id: req.user._id});
+
+    const followerName = follower.name;
+
     const fcm =await User.findOne({_id: userId});
-    const fctoken =  fcm.FCMtoken;
+
+    const fcmLength = fcm.FCMtoken.length;
+    
+
+    if(fcmLength === 0){
+
+         User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}})
+
+         .then(()=>{
+            return res.status(200).json({
+            msg: "follower updated successfully",
+            success: true
+        })
+        console.log("res")
+    }).catch((error)=>{
+         console.log("error updating the follower field", error);
+
+         return res.status(404).json({
+            msg: "error updating the follower fiels",
+            error: error,
+            success: false
+         })
+    })
+        gen({
+            jobType: "offline_user_notification",
+            payload:{
+                toNotify: userId,
+                notificationTitle: "You got a new follower",
+                notificationBody: `${followerName} started following you`,
+                follower: follower._id
+            }
+        })
+    }else{
+
+        const fctoken =  fcm.FCMtoken[0].token;
+
+         console.log("fccccc", fctoken);
 
     console.log("fcm", fcm)
 
@@ -44,7 +84,7 @@ const handleFollow=async(req, res)=>{
             payload:{
                 notification: {
                     "title": "New Follower",
-                    "body": "A user started following you"
+                    "body": `${followerName} user started following you`
 
                 },
                 
@@ -59,7 +99,7 @@ const handleFollow=async(req, res)=>{
         // messenger.send(message)
         // mqStarter(JSON.stringify(jobData))
 
-        gen(JSON.stringify(jobData))
+        gen(jobData)
 
 
 
@@ -68,6 +108,7 @@ const handleFollow=async(req, res)=>{
             msg: "follower updated successfully",
             success: true
         })
+        console.log("res")
     }).catch((error)=>{
          console.log("error updating the follower field", error);
 
@@ -78,6 +119,8 @@ const handleFollow=async(req, res)=>{
          })
     })
 
+    }
+   
 }
 
 const getFollowers =(req, res)=>{

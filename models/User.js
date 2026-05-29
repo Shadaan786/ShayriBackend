@@ -29,10 +29,15 @@ const UserSchema = new mongoose.Schema({
         type: String
     },
 
-    FCMtoken:{
-        type: String,
-        unique: true
+    FCMtoken:[
+        {
+            token:{
+                type: String,
+                 unique: true
     },
+    _id: false
+    }
+    ],
 
     followers:[
         {
@@ -45,9 +50,22 @@ const UserSchema = new mongoose.Schema({
     ],
     notifications:[
         {
-            notification: {
+             notificationType:{
                 type: String
             },
+            notificationTitle: {
+                type: String
+            },
+            notificationBody:{
+                type: String
+            },
+            notificationRedirectLink:{
+                type: String
+            },
+            toNavigate:{
+               type: String 
+            },
+           
             _id: false,
             
         },

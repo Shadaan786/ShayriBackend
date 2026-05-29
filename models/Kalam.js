@@ -1,3 +1,4 @@
+const { type } = require("firebase/firestore/pipelines");
 const mongoose = require("mongoose");
 
 const KalamSchema = new mongoose.Schema({
@@ -54,6 +55,89 @@ const KalamSchema = new mongoose.Schema({
 
    kalamAudio:{
     type: String
+   },
+
+   customStyles:{
+    title: {
+        type: String
+    },
+    content:{
+        type: String
+    },
+    badgeBg:{
+        type: String
+    },
+    badgeBorder:{
+        type: String
+    },
+
+    autoMainCOlor:{
+        type: String
+    },
+
+    resolvedTitleColor:{
+        type: String
+    },
+
+    titleFs:{
+        type: String
+    },
+    resolvedTitleFamily:{
+        type: String
+
+    },
+
+    resolvedContentColor: {
+        type: String
+    },
+
+    contentFs:{
+        type: String
+    },
+
+    resolvedContentFamily:{
+        type: String
+    },
+
+    subColor:{
+        type: String
+    },
+
+    backdrop:{
+        type: String
+    },
+
+    resolvedTextColor:{
+        type: String
+    },
+    bgTab:{
+        type: String
+    },
+
+    selectedColor:{
+        type: String
+    },
+    customColor:{
+        type: String
+    },
+
+    selectedColor:{
+        type: String
+    },
+
+    bgOpacity:{
+        type: Number
+    },
+
+    scrim:{
+        type: Number
+    },
+
+    
+
+    
+
+
    }
 
 

@@ -7,7 +7,8 @@ const saltRounds = 12;
 const sendMail = require('../service/mailer')
 const jobQueue = require('../jobQueue')
 const mq = require('../send');
-
+const { urlencoded } = require("express");
+const url = require('url')
 
 
 async function handleUserSignup(req, res) {
@@ -114,7 +115,7 @@ async function handleUserSignup(req, res) {
         if(!user){
 
             return res.json({
-            success: true,
+            success: false,
             msg: "data not found",
             redirectUrl: '/Signup'
 
@@ -142,7 +143,10 @@ async function handleUserSignup(req, res) {
   Headers
 });
         // res.cookie('uid', sessionId)
-            return res.status(200).json({msg: "User found successfully"})
+            return res.status(200).json({
+                msg: "User found successfully",
+                 success: true
+            })
             }else{
 
                  
@@ -192,6 +196,36 @@ async function handleUserSignup(req, res) {
 
     }
 
-module.exports = { handleUserSignup, handleUserLogin, handleUserProfile};
+    const handleUserLogout = (req, res)=>{
+
+        
+ 
+        console.log("logout route hit")
+        const token = url.parse(req.url, true).query.token;
+
+        console.log("tokkkeeennnn", token)
+
+        const token2 = req.cookies.uid;
+        req.user = getUser(token2);
+
+        User.findByIdAndUpdate(req.user._id, {$pull:{FCMtoken:{token:token}}})
+
+        .then((tokenPullResult)=>{
+            console.log("token pulled successfully", tokenPullResult);
+
+         return  res.clearCookie("uid").json("logged out successfully");
+
+           
+
+            
+        }).catch((error)=>{
+            console.log("Error while pulling token from user db", error)
+
+            return res.json(error);
+        })
+
+    }
+
+module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout};
 // module.exports = { handleUserLogin };
 

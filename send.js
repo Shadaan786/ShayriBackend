@@ -1,6 +1,6 @@
 const amqp = require('amqp-connection-manager')
 let connection;
-let channel;
+let channelWrapper;
 let queue;
 // const mqStarter = async(data)=>{
 
@@ -86,37 +86,79 @@ const mq = async(makeSure)=>{
 
     console.log("Connection builder running")
 
-     connection = await amqp.connect('amqp://localhost:5672');
-     channel = await connection.createChannel();
+    //  connection = await amqp.connect(['amqps://ekvncpnr:y0NMR6YFWcGntP2bvWTAKtfCnFkq4fhE@fuji.lmq.cloudamqp.com/ekvncpnr']);
+     connection =  amqp.connect(['amqps://ekvncpnr:y0NMR6YFWcGntP2bvWTAKtfCnFkq4fhE@fuji.lmq.cloudamqp.com/ekvncpnr']);
+     connection.on("connect", (connected)=>{
+        console.log("connected successfully", connected)
+     })
+     connection.on("error", error=>{
+        console.log("error while connecting to amqp send.js", error)
+     })
+    //  on(connection,()=>{
+    //     console.log("connected successfully")
+    //  })
 
-      queue = 'checking';
-       await channel.assertQueue(queue,{
-            durable: true,
-            arguments:{
-            'x-queue-type': 'quorum'
+     queue = 'checking';
+     channelWrapper =  connection.createChannel({
+        json: true,
+        setup: async(channel)=>{
+            await channel.assertQueue(queue, {
+                durable: true,
+                arguments:{
+                    "x-queue-type": "quorum",
+                } 
+            })
         }
+     });
+
+     channelWrapper.on("error", error=>{
+        console.log("error while creating channel", error);
+     })
+
+     
+    //   console.log(queue)
+
+      console.log("Hellooooooooooooo")
+        // channel.assertQueue(queue,{
+        //     durable: true,
+        //     arguments:{
+        //     'x-queue-type': 'quorum'
+        // }
         
 
-        })
+        // })
+        // .then((success)=>{
+        //     console.log("queue assereted successfully", success)
+        // })
+        // .catch((error)=>{
+        //     console.log("Error whilr asserting queue", error)
+        // })
 
+
+        await channelWrapper.waitForConnect();
+
+        return;
 
 }
 
     const gen =(data)=>{
 
-        if(!data)return
+        
+
+
+        console.log("gen_data", data)
 
         
 
        
 
-        channel.sendToQueue(queue, Buffer.from(data));
+        channelWrapper.sendToQueue(queue, data)
 
         console.log("msg sent", data);
 
     }
 
-    mq()
+
     
 
 
