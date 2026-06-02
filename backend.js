@@ -52,6 +52,8 @@ const reciever = require('./reciever');
 const { lookupService } = require("dns");
 const {handleUserLogout} = require('./controller/userController')
 const offlineNotificationHandler = require('./controller/offlineNotificationController')
+require('./Schedulers/scheduler')
+const Kotw = require('./models/KalamOfTheDay');
 
 
 
@@ -209,6 +211,9 @@ app.get('/api/userId',(req, res)=>{
      return res.json(mongoRes);
 
 
+  }).catch((error)=>{
+    console.log("Error while fetching user", error);
+    return res.status(401).json(error);
   })
 
  
@@ -362,6 +367,12 @@ app.get('/api/social', async(req, res)=>{
 
   const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
   const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
+   
+  
+
+  
+  
+  
  
   const token = req.cookies.uid;
 
@@ -372,11 +383,16 @@ app.get('/api/social', async(req, res)=>{
   const netKalams = await Kalam.find();
   const totalLength = netKalams.length;
 
+  const likedKalams = await  Kalam.find({likedBy: req.user._id}, {_id: 1})
+  console.log("check lk", likedKalams)
+
+
   return res.json({
     
     allKalamsName,
     userId,
-    totalLength
+    totalLength,
+    likedKalams
     
 
   })
@@ -393,12 +409,13 @@ app.get('/api/kalam/comment', async (req, res)=>{
 
   const userKalam = await Kalam.find({_id: id}, {comments: 1, _id: 0})
   const mId = await User.find({_id: req.user._id})
-  
+ 
 
   return res.json({
 
     userKalam,
     mId
+    
   });
 })
 
@@ -880,6 +897,46 @@ app.get('/api/customKalam',(req, res)=>{
     return res.json("error", error)
   })
 })
+
+app.get('/api/isLiked', (req, res)=>{
+  const kalamId = url.parse(req.url, true).query.kalamId;
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+
+  Kalam.find({likedBy: req.user._id}, {_id: 1})
+  .then((likedKalams)=>{
+
+    console.log("likedKalams", likedKalams)
+    console.log("see values",likedKalams.values())
+    for (const item of likedKalams){
+      console.log("item",item._id)
+    }
+
+   return res.status(201).json(likedKalams)
+  }).catch((error)=>{
+    console.log("Failed fetching liked kalams", error)
+    return res.status(501).json(error);
+  })
+  
+})
+
+app.get('/api/KalamOfTheWeek', stayLoggedIn, (req, res)=>{
+
+  console.log("hit")
+
+  Kotw.find().populate("Kalam")
+  .then((Kotw_found)=>{
+    
+    return res.status(201).json(Kotw_found);
+  }).catch((error)=>{
+    console.log("Error while fetching Kalam of The Week", error)
+
+    return res.status(501).json(error);
+  })
+  
+})
+
+
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server
