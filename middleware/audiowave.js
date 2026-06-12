@@ -1,18 +1,19 @@
 const {spawn} = require('child_process');
 const { log } = require('console');
 const { sign } = require('crypto');
+let finalWaveForm;
 
 
- const audioWave=(req, res, next)=>{
+ const audioWave = async(inputPath, fileName)=>{
 
-    new Promise(function(resolve, reject){
+  return  new Promise(function(resolve, reject){
 
     
 
-   req.finalWaveForm = `./uploads/kalamAudio/AW${req.uniqueSuffix}.mp4`
+   finalWaveForm = `./uploads/kalamAudio/AW${fileName}.mp4`
 
 
-const child = spawn("ffmpeg", ["-i", req.heck, "-filter_complex", "[0:a]aformat=channel_layouts=mono,showwaves=s=640x360:mode=line:colors=white,format=yuv420p[v]", "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-c:a", "aac", "-shortest", req.finalWaveForm])
+const child = spawn("ffmpeg", ["-i", inputPath, "-filter_complex", "[0:a]aformat=channel_layouts=mono,showwaves=s=640x360:mode=line:colors=white,format=yuv420p[v]", "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-c:a", "aac", "-shortest", finalWaveForm])
 
 child.stdout.on("data", (data)=>{
     console.log("data:", data.toString());
@@ -41,7 +42,7 @@ child.on("exit", (code, signal)=>{
 
     console.log("MiddleWare AudioWave executed successfully")
 
-    next();
+    return finalWaveForm
 })
 
 

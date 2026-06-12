@@ -13,7 +13,7 @@ const reciever =async(makeSure)=>{
 
   
     // const connection = await amqp.connect(['amqps://ekvncpnr:y0NMR6YFWcGntP2bvWTAKtfCnFkq4fhE@fuji.lmq.cloudamqp.com/ekvncpnr2']);
-    const connection = await amqp.connect(['amqps://ekvncpnr:y0NMR6YFWcGntP2bvWTAKtfCnFkq4fhE@fuji.lmq.cloudamqp.com/ekvncpnr']);
+    const connection = await amqp.connect(['amqps://ekvncpnr:MfgNIppn7NWI-01W5Il20tMEUU7O-WKz@fuji.lmq.cloudamqp.com/ekvncpnr']);
 
     connection.on("error", error=>{
       console.log("error while connecting ", error)

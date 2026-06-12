@@ -133,6 +133,14 @@ const KalamSchema = new mongoose.Schema({
         type: Number
     },
 
+    imageSrc:{
+        type: String
+    },
+
+    isImage:{
+        type: Boolean
+    },
+
     
 
     

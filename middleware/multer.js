@@ -2,6 +2,8 @@ const multer = require('multer');
 const path = require('path')
 const fs = require('fs')
 const {getUser} = require('../service/auth');
+const {mediaQueue, mediaData} = require('../mediaQueue')
+
 // const { request } = require('http');
 
 
@@ -10,18 +12,26 @@ const {getUser} = require('../service/auth');
 const storage = multer.diskStorage({destination: function (req, file, cb){
 
 
-    console.log("hello main check")
-
-    console.log("checking req.body", req.body)
-    // console.log("First req",req);
-    
-    // console.log("req", req)
-
     const fieldName = file.fieldname;
+   
+    
+    if (fieldName === "kalamBg"){
+
+      cb(null, './uploads/kalamBg')
+
+        return;
+
+    
 
     req.fieldName = fieldName;
 
-    if(fieldName === 'video'){
+
+    }else if(fieldName === "kalamAudio"){
+
+        cb(null, './uploads/kalamAudio')
+    }
+
+   else if(fieldName === 'video'){
 
         cb(null, './uploads/kalamVideo');
 

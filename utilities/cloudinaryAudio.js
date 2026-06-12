@@ -13,7 +13,7 @@
 
     
 
-    const cloudinaryAudio=(req, res, next)=>{
+    const cloudinaryAudio=async(file)=>{
 
 
         console.log("checking file path", "./uploads/kalamAudio/output.wav")
@@ -37,7 +37,7 @@
         
 
         
-     cloudinary.uploader .upload( req.finalWaveForm,{
+   return  cloudinary.uploader .upload( file,{
 
         
         resource_type: "video"
@@ -47,8 +47,9 @@
         .then((uploadResult)=>{
             console.log("uploadResult", uploadResult)
 
-            imageUrl = uploadResult.url;
+         const videoUrl = uploadResult.url;
             console.log("imageUrl", imageUrl)
+            return videoUrl
 
             // fs.unlink(req.file.path,(error)=>{
             //     if(error)console.log("error in deleting file", error);else{
@@ -58,31 +59,68 @@
 
             // return res.json(uploadResult.url);
 
-            const {type, content} = req.body;
-            const token = req.cookies.uid;
+        //  const { title,
+        //      content,
+        //      badgeBg,
+        //      badgeBorder,
+        //      autoMainColor,
+        //      resolvedTitleColor,
+        //      titleFs,
+        //      resolvedTitleFamily,
+        //      resolvedContentColor,
+        //      contentFs,
+        //      resolvedContentFamily,
+        //      subColor,
+        //      backdrop,
+        //      resolvedTextColor,
+        //      activeMoods,
+        //      type,
+        //      bgTab,
+        //      customColor,
+        //      selectedColor,
+        //      bgOpacity,
+        //      scrim} = req.body
 
-            req.user = getUser(token);
-
-           
-              Kalam.create({
-        type,
-        content,
-        createdBy: req.user._id,
-        name: req.user.name,
-        kalamAudio: imageUrl
-    })
-
-     .then((DbResponse)=>{
-        console.log("kalam created successfully");
-        console.log(DbResponse);
-
-        return res.json(`audioUrl from backend: ${imageUrl}`);
-    })
-
-    .catch((error)=>{
-        console.log("Error uploading to MongoDB", error)
-    })
-         
+        //      console.log("see req.body", req.body);
+       
+        //      const token = req.cookies.uid;
+        //      req.user = getUser(token)
+       
+        //  Kalam.create({
+        //      name: title,
+        //      content: content,
+        //      createdBy: req.user._id,
+        //      type: type,
+        //      customStyles:{
+        //      badgeBg,
+        //      badgeBorder,
+        //      autoMainColor,
+        //      resolvedTitleColor,
+        //      titleFs,
+        //      resolvedTitleFamily,
+        //      resolvedContentColor,
+        //      contentFs,
+        //      resolvedContentFamily,
+        //      subColor,
+        //      backdrop,
+        //      resolvedTextColor,
+        //      activeMoods,
+        //      bgTab,
+        //      customColor,
+        //      selectedColor,
+        //      bgOpacity,
+        //      scrim
+             
+        //      }
+        //  }).then((customKalam)=>{
+        //    console.log("custom kalam created successfully", customKalam)
+       
+        //    return res.json(customKalam)
+        //  }).catch ((error)=>{
+        //    console.log("Error while creating custom kalam", error)
+       
+        //    return res.json(error)
+        //  })
 
    
 

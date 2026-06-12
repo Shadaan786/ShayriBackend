@@ -13,11 +13,11 @@
 
     
 
-    const cloudfareUploader=(req, res, next)=>{
+    const cloudfareUploader=async(imagePath)=>{
 
 
-        console.log("checking file path", req.file.path)
-        console.log("checking req.body", req.body)
+        // console.log("checking file path", req.file.path)
+        // console.log("checking req.body", req.body)
 
         // Configuration
         cloudinary.config({ 
@@ -38,7 +38,7 @@
         
 
         
-     cloudinary.uploader .upload( req.file.path,{
+   return cloudinary.uploader .upload( imagePath,{
 
         
         resource_type: "image",
@@ -51,18 +51,18 @@
             console.log(uploadResult)
 
             imageUrl = uploadResult.url;
-            req.imageLink = imageUrl;
+            // req.imageLink = imageUrl;
             console.log("imageUrl", imageUrl)
 
-            fs.unlink(req.file.path,(error)=>{
-                if(error)console.log("error in deleting file", error);
+            // fs.unlink(req.file.path,(error)=>{
+            //     if(error)console.log("error in deleting file", error);
                 
-                else{
-                    console.log("File deleted successfully");
-                }
-            })
+            //     else{
+            //         console.log("File deleted successfully");
+            //     }
+            // })
 
-            next();
+            return imageUrl
             
 
          

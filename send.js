@@ -87,7 +87,7 @@ const mq = async(makeSure)=>{
     console.log("Connection builder running")
 
     //  connection = await amqp.connect(['amqps://ekvncpnr:y0NMR6YFWcGntP2bvWTAKtfCnFkq4fhE@fuji.lmq.cloudamqp.com/ekvncpnr']);
-     connection =  amqp.connect(['amqps://ekvncpnr:y0NMR6YFWcGntP2bvWTAKtfCnFkq4fhE@fuji.lmq.cloudamqp.com/ekvncpnr']);
+     connection =  amqp.connect(['amqps://ekvncpnr:MfgNIppn7NWI-01W5Il20tMEUU7O-WKz@fuji.lmq.cloudamqp.com/ekvncpnr']);
      connection.on("connect", (connected)=>{
         console.log("connected successfully", connected)
      })

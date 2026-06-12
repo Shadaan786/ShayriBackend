@@ -54,6 +54,21 @@ const {handleUserLogout} = require('./controller/userController')
 const offlineNotificationHandler = require('./controller/offlineNotificationController')
 require('./Schedulers/scheduler')
 const Kotw = require('./models/KalamOfTheDay');
+const {upload2} = require('./middleware/multipleMulter')
+const {mediaQueue} = require('./mediaQueue');
+const {mediaQueueConsumer} = require('./mediaQueueConsumer');
+const mediaHandler = require('./controller/mediaHandler');
+// const Redis = require('ioredis') 
+
+// const redis = new Redis('redis://localhost:6379');
+
+// app.get('/redis', async(req, res)=>{
+//   const check = await redis.ping()
+
+//   res.json({
+//     "checking_redis": check
+//   });
+// })
 
 
 
@@ -69,6 +84,8 @@ app.use(cookieParser());
 
 const startMQ = async()=>{
      await mq(1)
+     await mediaQueue(1)
+     await mediaQueueConsumer(1)
       reciever(1);
     
 }
@@ -555,12 +572,16 @@ console.log("Album with updated kalams")
 
 
 
+const uploadMiddleware = upload.fields([{name: "kalamBg", maxCount: 1},{name: "kalamAudio", maxCount: 1} ])
   
 
 app.post('/api/GalleryCover', upload.single('video'), cloudfareUploader);
 
-app.post('/upload/kalamAudio', upload.single('audio'), clearVoice, audioWave, cloudinaryAudio)
+app.post('/upload/kalamAudio', uploadMiddleware, clearVoice, audioWave, cloudinaryAudio)
 
+
+
+app.post('/api/testing', uploadMiddleware, mediaHandler)
   // console.log("dekh",req.file.originalname)
   // console.log("reqbody", req.body.type);
   // res.json("hello from buckend")
