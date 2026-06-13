@@ -45,21 +45,9 @@ channel.consume(queue, msg=>{
     channel.ack(msg)
     
     
-    if(media_data.fileType === 'audio'){
-const check = (async()=>{
-
-            console.log("Media consumer running");
-            
-
-const check2 = await clearVoice(media_data.payload.filePath, media_data.payload.fileName)
-            
-            console.log(check2);
-            
-        })
-        check();
+ if(media_data.fileType === "image&audio"){
+        console.log("Image and audio consumer ran");
         
-        
-    }else if(media_data.fileType === "image&audio"){
         const check2 = (async()=>{
 
             const imageUrl = await cloudfareUploader(media_data.payload.kalamBgPath);
@@ -82,6 +70,31 @@ const check2 = await clearVoice(media_data.payload.filePath, media_data.payload.
         check2()
 
 
+    }else if(media_data.fileType === 'image'){
+        console.log("only image consumer ran")
+        const check3 = (async()=>{
+            const imageUrl = await cloudfareUploader(media_data.payload.kalamBgPath);
+            await dbImageUploader(media_data.payload.fileData, media_data.payload.userId, imageUrl)
+
+        })
+        check3();
+    }else if(media_data.fileType === 'audio'){
+        const check4 = (async()=>{
+
+            console.log("see input in consumer", media_data.payload.kalamAudioPath);
+            
+              const clearedVoice = await clearVoice(media_data.payload.kalamAudioPath, media_data.payload.kalamAudioFileName);
+            console.log("voice cleared successfully done!!");
+            const audioWaveGenerated  = await audioWave(clearedVoice, media_data.payload.kalamAudioFileName);
+           console.log("audiowave generated successfully done!!")
+            const videoUrl = await cloudinaryAudio(audioWaveGenerated);
+            console.log("Video url generated successfully done!!")
+            const kalamBgUpdate =  await dbImageUploader(media_data.payload.fileData, media_data.payload.userId, null, videoUrl);
+            console.log("Kalam stored in database successfully done!!");
+            console.log("seeeee", kalamBgUpdate);
+            
+        })
+        check4()
     }
 
 },{

@@ -59,7 +59,8 @@ const dbImageUploader=async(kalamFields, uuid, kalamBg, kalamAudio)=>{
         console.log("Kalam background cover updated successfully");
         return kalamBgUpdate
      }).catch((error)=>{
-        console.log("Error while uploading klalam bg to mongoDB");
+        console.log("Error while uploading klalam bg to mongoDB", error);
+        return error
      })
     
 

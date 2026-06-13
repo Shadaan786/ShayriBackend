@@ -65,6 +65,31 @@ const mediaHandler=(req, res)=>{
                 userId: req.user._id
             }
         })
+    } else if(req.body.fileType === 'image'){
+
+        console.log("only image ran");
+
+        mediaData({
+            fileType: 'image',
+            payload:{
+                kalamBgPath: imagePath,
+                userId: req.user._id,
+                fileData: req.body
+            }
+        })
+
+    }else if(req.body.fileType === 'audio'){
+        console.log("only audio ran");
+
+        mediaData({
+            fileType: 'audio',
+            payload: {
+                kalamAudioPath: audioPath,
+                fileData: req.body,
+                kalamAudioFileName: audioFileName,
+                userId: req.user._id
+            }
+        })
     }
 
     return res.json("done")

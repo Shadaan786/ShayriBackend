@@ -83,6 +83,7 @@ const { resolveSoa } = require('dns');
 
 //     console.log("req.file cv", req.files)
     let outputPath;
+    console.log("See input path", inputPath)
 
 
 return  new Promise(function(resolve, reject){
