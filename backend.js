@@ -62,6 +62,7 @@ const mediaHandler = require('./controller/mediaHandler');
 const winston = require("winston");
 const {devLogger} = require("./loggers/devLogger");
 const {handleKalamSearch} = require('./controller/searchController');
+const {handleAlbumSearch} = require('./controller/searchController');
 
 const logger = devLogger()
 // const Redis = require('ioredis') 
@@ -984,6 +985,8 @@ app.get('/api/KalamOfTheWeek', stayLoggedIn, (req, res)=>{
 })
 
 app.get('/api/search/kalam', handleKalamSearch);
+
+app.get('/api/search/album', handleAlbumSearch);
 
 
 
