@@ -43,7 +43,19 @@ const AlbumSchema = new Schema({
     category:{
         type: String,
         require: true
+    },
+    
+ totalStars:{
+    type: Number,
+    default: 0,
+    required: true
+   },
+
+   startsBy:[
+    {
+        type: String
     }
+   ],
 
 
 })

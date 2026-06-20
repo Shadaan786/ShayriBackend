@@ -8,7 +8,8 @@
     const Community = require('./models/Community');
     const Kalam = require('./models/Kalam');
     const cookieParser = require('cookie-parser')
-    const server = require('./backend')
+    const server = require('./backend');
+const Album = require('./models/Album');
 
     const app = express();
     const allClient = new Map();
@@ -241,6 +242,37 @@
                 const memberUuid = real_data.payload.mUid;
                 const comment = real_data.payload.content;
                 const kalamId = real_data.payload.kalId;
+            }else if(real_data.type === "album_star"){
+                const userId = real_data.payload.userId;
+                const albumId = real_data.payload.albumId;
+
+                  const stars = await Album.find({_id: albumId, startsBy: userId});
+                
+                if(stars.length === 0){
+
+                const check =  await Album.updateOne({_id: albumId},{$addToSet:{startsBy: userId}})
+
+                const check2 =  await Album.updateOne({_id: albumId}, {$inc:{totalStars: 1}})
+                console.log("check", check)
+                console.log("check2", check2)
+                }else{
+
+
+            
+                
+            const check3 =  await Album.updateOne({_id: albumId},{$pull:{startsBy: userId}})
+
+            const check4 =  await Album.updateOne({_id: albumId}, {$inc:{totalStars: -1}})
+
+            console.log("check3", check3)
+            console.log("check4", check4)
+
+            }
+            
+            
+
+
+
             }
         })
 

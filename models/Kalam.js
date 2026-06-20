@@ -40,7 +40,8 @@ const KalamSchema = new mongoose.Schema({
    comments:[
     {
         commentBy:{
-            type: String
+            type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
         },
 
         comment:{

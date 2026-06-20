@@ -1,3 +1,4 @@
+require("./logging-instrumentation");
 require("dotenv").config();
 console.log("Port from env:", process.env.PORT);
 const http = require('http');
@@ -58,6 +59,11 @@ const {upload2} = require('./middleware/multipleMulter')
 const {mediaQueue} = require('./mediaQueue');
 const {mediaQueueConsumer} = require('./mediaQueueConsumer');
 const mediaHandler = require('./controller/mediaHandler');
+const winston = require("winston");
+const {devLogger} = require("./loggers/devLogger");
+const {handleKalamSearch} = require('./controller/searchController');
+
+const logger = devLogger()
 // const Redis = require('ioredis') 
 
 // const redis = new Redis('redis://localhost:6379');
@@ -104,6 +110,11 @@ const startMQ = async()=>{
 // workerStarter();
 
 // app.use(status());
+// const logger = winston.createLogger({
+//   level: "info",
+//   format: winston.format.json(),
+//   transports: [new winston.transports.Console()],
+// });
 app.use("/signup", userRoute);
 console.log("✅ Signup route registered at /signup"); //
 app.use("/login", userRoute2);
@@ -377,10 +388,21 @@ app.get("/api/community/Chat", async(req, res)=>{
 app.get('/api/social', async(req, res)=>{
 
   console.log('infinite scroll route hit')
+  // logger.info("Request received", { path: req.path, method: req.method });
+  // devLogger.log({
+  //   level: "info",
+  //   message: req.url
+  // })
+  logger.log({
+    level: "debug",
+    message: req.url
+})
+  
 
    const page = url.parse(req.url, true).query.page;
   const limit = url.parse(req.url, true).query.limit;
 
+  console.log("see url",req.url)
 
   const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
   const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
@@ -388,7 +410,11 @@ app.get('/api/social', async(req, res)=>{
   
 
   
-  
+  logger.log({
+    level: "info",
+    message: allKalamsName
+    
+  })
   
  
   const token = req.cookies.uid;
@@ -401,7 +427,7 @@ app.get('/api/social', async(req, res)=>{
   const totalLength = netKalams.length;
 
   const likedKalams = await  Kalam.find({likedBy: req.user._id}, {_id: 1})
-  console.log("check lk", likedKalams)
+  // console.log("check lk", likedKalams)
 
 
   return res.json({
@@ -424,7 +450,7 @@ app.get('/api/kalam/comment', async (req, res)=>{
   const token = req.cookies.uid;
   req.user = getUser(token);
 
-  const userKalam = await Kalam.find({_id: id}, {comments: 1, _id: 0})
+  const userKalam = await Kalam.find({_id: id}, {comments: 1, _id: 0}).populate("comments.commentBy")
   const mId = await User.find({_id: req.user._id})
  
 
@@ -956,6 +982,8 @@ app.get('/api/KalamOfTheWeek', stayLoggedIn, (req, res)=>{
   })
   
 })
+
+app.get('/api/search/kalam', handleKalamSearch);
 
 
 
