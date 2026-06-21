@@ -411,11 +411,7 @@ app.get('/api/social', async(req, res)=>{
   
 
   
-  logger.log({
-    level: "info",
-    message: allKalamsName
-    
-  })
+
   
  
   const token = req.cookies.uid;
@@ -676,12 +672,10 @@ app.get('/api/albumsLive', (req, res)=>{
 
   console.log("req.query", req.query)
 
-  const category = url.parse(req.url, true).query.category;
-  const limit = url.parse(req.url, true).query.limit;
-  const page = url.parse(req.url, true).query.page;
-  console.log("checking_category", category)
+  const {limit, page, query} = url.parse(req.url, true).query;
+  
 
-  if(category === 'all'){
+  if(query === 'all'){
 
     // console.log("req.body", req.body.category)
     Album.find({isLive: 1}).skip(page*limit - limit).limit(limit)
@@ -698,7 +692,7 @@ app.get('/api/albumsLive', (req, res)=>{
 
       return res.json(error)
     })
-  }else if(category === "romantic"){
+  }else if(query === "romantic"){
     Album.find({isLive: 1, category: "romantic"}).skip(page*limit - limit).limit(limit)
 
       .then((romanticAlbums)=>{
@@ -710,7 +704,7 @@ app.get('/api/albumsLive', (req, res)=>{
         return res.json(error);
       })
     
-  }else if(category === 'motivation'){
+  }else if(query === 'motivation'){
 
     Album.find({isLive: 1, category: "motivation"}).skip(page*limit - limit).limit(limit)
     .then((motivationAlbums)=>{
@@ -721,8 +715,19 @@ app.get('/api/albumsLive', (req, res)=>{
       return res.json(error);
     })
   }else{
-    ;
+     Album.find({$text: {$search: query}}).skip(page*limit - limit).limit(limit)
+
+    .then((albumsSearched)=>{
+
+      return res.status(200).json(albumsSearched)
+    }).catch((error)=>{
+      logger.log({
+        level: "error",
+        message: error
+      })
+    })
   }
+
 })
 
 app.post('/api/upload/albumCover', upload.single('albumCover'), cloudfareUploader, albumCoverController)
