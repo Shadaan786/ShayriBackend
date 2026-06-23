@@ -63,19 +63,9 @@ const winston = require("winston");
 const {devLogger} = require("./loggers/devLogger");
 const {handleKalamSearch} = require('./controller/searchController');
 const {handleAlbumSearch} = require('./controller/searchController');
+const redis = require("./redis");
 
 const logger = devLogger()
-// const Redis = require('ioredis') 
-
-// const redis = new Redis('redis://localhost:6379');
-
-// app.get('/redis', async(req, res)=>{
-//   const check = await redis.ping()
-
-//   res.json({
-//     "checking_redis": check
-//   });
-// })
 
 
 
@@ -992,6 +982,16 @@ app.get('/api/KalamOfTheWeek', stayLoggedIn, (req, res)=>{
 app.get('/api/search/kalam', handleKalamSearch);
 
 app.get('/api/search/album', handleAlbumSearch);
+
+app.get('/redis/userId', async(req, res)=>{
+
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+
+  const id = await redis.get(req.user._id)
+  return res.json(id)
+  
+})
 
 
 

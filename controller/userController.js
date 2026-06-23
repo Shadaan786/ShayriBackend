@@ -9,6 +9,8 @@ const jobQueue = require('../jobQueue')
 const mq = require('../send');
 const { urlencoded } = require("express");
 const url = require('url')
+const redis = require('../redis');
+const { devLogger } = require("../loggers/devLogger");
 
 
 async function handleUserSignup(req, res) {
@@ -104,7 +106,7 @@ async function handleUserSignup(req, res) {
   
 }
 
-  async function handleUserLogin(req, res){
+  async function handleUserLogin (req, res){
     console.log(req.body);
         console.log("login route hit")
 
@@ -131,6 +133,21 @@ async function handleUserSignup(req, res) {
         .then((result)=>{
 
             if(result){
+ 
+             const settingId =   async()=>{
+                
+                    await  redis.set(user._id, JSON.stringify(user))
+                    devLogger().log({
+                        level: "debug",
+                        message: user
+                    })
+
+                }
+
+                settingId();
+
+                
+                
                 
                 
         const token = setUser(user)
@@ -143,6 +160,7 @@ async function handleUserSignup(req, res) {
   Headers
 });
         // res.cookie('uid', sessionId)
+      
             return res.status(200).json({
                 msg: "User found successfully",
                  success: true
@@ -196,7 +214,7 @@ async function handleUserSignup(req, res) {
 
     }
 
-    const handleUserLogout = (req, res)=>{
+    const handleUserLogout = async(req, res)=>{
 
         
  
@@ -207,6 +225,8 @@ async function handleUserSignup(req, res) {
 
         const token2 = req.cookies.uid;
         req.user = getUser(token2);
+
+       await redis.del(req.user._id)
 
         User.findByIdAndUpdate(req.user._id, {$pull:{FCMtoken:{token:token}}})
 

@@ -1,5 +1,6 @@
 const server = require('./backend');
 require('./backend2');
+require('./redis');
 
 
 
