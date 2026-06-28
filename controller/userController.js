@@ -133,18 +133,6 @@ async function handleUserSignup(req, res) {
         .then((result)=>{
 
             if(result){
- 
-             const settingId =   async()=>{
-                
-                    await  redis.set(user._id, JSON.stringify(user))
-                    devLogger().log({
-                        level: "debug",
-                        message: user
-                    })
-
-                }
-
-                settingId();
 
                 
                 

@@ -219,13 +219,27 @@ app.get("/api/sher/Allama_Iqbal/:id", (req, res)=>{
     return res.json(sher);
 })
 
-app.get('/api/userId',(req, res)=>{
+app.get('/api/userId', async(req, res)=>{
 
   const token = req.cookies.uid;
   req.user = getUser(token);
 
-  User.findOne({_id: req.user._id})
-  .then((mongoRes)=>{
+  const user = await redis.get(`user:${req.user._id}`)
+
+  if(user){
+    console.log("redis ran")
+    console.log("see redis response", JSON.parse(user))
+    return res.status(200).json(JSON.parse(user))
+  }else{
+
+    User.findOne({_id: req.user._id})
+  .then(async(mongoRes)=>{
+
+    console.log("mongo ran");
+    
+    console.log("see mongores", mongoRes)
+
+   await redis.set(`user:${req.user._id}`, JSON.stringify(mongoRes))
 
      return res.json(mongoRes);
 
@@ -235,21 +249,44 @@ app.get('/api/userId',(req, res)=>{
     return res.status(401).json(error);
   })
 
+  }
+
+
+
+  
+
  
 })
 
 app.get("/api/users", stayLoggedIn, async (req, res)=>{
-  // const token = req.cookies.uid;
-  // const  user = getUser(token);
-  // req.user = user;
+  
+  logger.log({
+    level: "debug",
+    message: JSON.stringify(req.params)
+  })
 
+  const userId = url.parse(req.url, true).query.userId
+  const token = req.cookies.uid;
+  const  user = getUser(token);
+  req.user = user;
+
+  const data = await redis.hgetall(`kalamInfo:${userId}`)
+  console.log("see object length", Object.keys(data).length);
+  
+if(Object.keys(data).length === 0){
+
+  console.log("Primary database ran");
   // const userId = req.body.userId;
   const userId = url.parse(req.url, true).query.userId
   const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0});
+  logger.log({
+    level: "debug",
+    message: userId
+  })
 
   
   // const hello = userDb[0];
-  // const hello = userDb[0].name;
+  // const hello = userDb[0].name;`
     const len = await Kalam.find({createdBy: userId});
     const leng = len.length
    
@@ -270,7 +307,24 @@ app.get("/api/users", stayLoggedIn, async (req, res)=>{
 
     const netFollowers = await User.findOne({_id: userId},{followers: 1, _id: 0})
 
+    const user = await redis.get(`user:${req.user._id}`)
+
+    if(req.user._id === userId){
+
+        await  redis.hset( `kalamInfo:${req.user._id}`,
+    {
+      "userKalamLength": leng, 
+    "userNazmLength": nazmLen,
+     "userGhazalLength": ghazalLen,
+      "userSherLength": sherCollectionLen,
+       "userFollowers": netFollowers.followers.length,
+       "userInfo": user
+      });
+
   
+
+    }
+
 
   
   return res.json({
@@ -283,7 +337,17 @@ app.get("/api/users", stayLoggedIn, async (req, res)=>{
     netFollowers
     
 
-  });
+  });}else{
+    
+    console.log("redis rannnn");
+    console.log("data", data)
+    console.log(Object.keys(data).length)
+    
+
+    return res.status(200).json(data)
+
+  }
+
 })
 
 // app.get("/kalam", (req, res)=>{
@@ -991,6 +1055,55 @@ app.get('/redis/userId', async(req, res)=>{
   const id = await redis.get(req.user._id)
   return res.json(id)
   
+})
+
+
+app.get('/api/likedKalams',async(req, res)=>{
+
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+
+  const likedKalams = await redis.get(`likedKalams:${req.user._id}`);
+  if(!likedKalams){
+
+    Kalam.find({likedBy: req.user._id}, {_id: 1})
+    .then(async(likedKalamsFound)=>{
+    await  redis.set(`likedKalams:${req.user._id}`,  JSON.stringify(likedKalamsFound));
+      return res.status(200).json(likedKalamsFound);
+    }).catch((error)=>{
+      logger.log({
+        level: "debug",
+        message: error
+      })
+    })
+
+  }else{
+
+    return res.status(200).json(likedKalams)
+
+  }
+  
+})
+
+app.get('/api/user', async(req, res)=>{
+   const userId = url.parse(req.url, true).query.userId
+  const user = await redis.get(`userId:${req.user._id}`)
+
+  if(!user){
+    User.findOne({_id: req.user._id})
+    .then(async(userFound)=>{
+      await redis.set(`userId:${req.user._id}`, userFound)
+      return res.status(200).json(userFound)
+    }).catch((error)=>{
+      logger.log({
+        level: "debug",
+        message: error
+      })
+    })
+  }else{
+    return res.status(200).json(user);
+  }
+
 })
 
 
