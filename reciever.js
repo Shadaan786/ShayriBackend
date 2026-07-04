@@ -3,6 +3,7 @@ const sendMail = require('./service/mailer')
 const {messenger} = require('./firebase');
 const mqStarter = require('./send');
 const User = require('./models/User');
+const Kalam = require('./models/Kalam');
 let queue2;
 
 const reciever =async(makeSure)=>{
@@ -108,6 +109,127 @@ channel.consume(queue, (msg)=>{
         console.log("Error whilie notifying offline user", error)
       })
 
+    }else if(data_final.jobType === "kalamLike_notification"){
+    const check =(async()=>{
+      
+      const likedKalam = await Kalam.findOne({_id: data_final.payload.kalamId})
+      const createdBy = (likedKalam.createdBy).toString()
+      const likedBy = await User.findOne({_id: data_final.payload.likedBy})
+      const likerName = likedBy.name;
+      console.log("likerName", likerName)
+
+      // Fetching FCM token 
+      try{
+        console.log("createdBy", createdBy)
+        const user = await User.findOne({_id: createdBy});
+        const FCMtoken = user.FCMtoken;
+        console.log("token length", FCMtoken.length);
+        if(FCMtoken.length !== 0){
+          //notifying user if user is loggedIn
+
+          console.log("forEach is running")
+
+          FCMtoken.forEach((token)=>{
+
+             const message = {
+            notification: {
+              "title": `New like to your kalam`,
+              "body": `${likerName} has liked your kalam`
+            },
+            data:{
+              score: '850',
+              time:'2:45'
+            },
+            token: token.token
+          }
+
+          messenger.send(message)
+          .then((data)=>{
+            console.log("User notified successfully", data);
+          }).catch((error)=>{
+            console.log("Eror while notifying user", error)
+          })
+
+
+          })
+
+
+          try{
+
+          
+        const userNotified =  await User.updateOne({_id: createdBy},{$push:{notifications:{notificationType:"kalam liked",notificationTitle:"You got a like on your comment", notificationBody: `${likerName} liked your kalam`}}})
+        console.log("User notification stored successfully in MonogDb1", userNotified)
+
+          }catch(error){
+            console.log("Error while storing user notification in MongoDB1",error);
+
+          }
+         
+        }else{
+
+    try{ const userNotified =  await User.updateOne({_id: createdBy},{$push:{notifications:{notificationType:"kalam liked",notificationTitle:"You got a like on your comment", notificationBody: `${likerName} liked your kalam`}}})
+       console.log("User notification stored successfully in MongoDb2", userNotified)
+      }catch(error){
+        console.log("Error while storing user notification in MongoDB2", error)
+      }
+
+        }
+      }catch(error){
+        console.log("Error fetching the owner of liked Kalam", error)
+      }})
+      check()
+    }else if(data_final.jobType === "kalamUpload_notification"){
+      const kalamUploadBy = data_final.payload.uploadBy;
+      User.findOne({_id: kalamUploadBy}).populate("followers.follower")
+      .then((kalamUploader)=>{
+        console.log("kalamUploader", kalamUploader)
+        const followers = kalamUploader.followers
+        const kalamUploaderName = kalamUploader.name;
+
+        if(followers.length === 0){
+          return
+        }else{
+
+          followers.forEach((follower)=>{
+           const tokens = follower.follower.FCMtoken
+           if(tokens.length === 0){
+            User.updateOne({_id:follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle: "New Kalam", notificationBody:`${kalamUploaderName} uploaded a new kalam`}}})
+            .then((notificationsStored)=>{
+              console.log("Notifications stored in Database")
+            }).catch((error)=>{
+              console.log("Error in storing kalam upload notification in Database", error)
+            })
+           }else{
+            tokens.forEach((token)=>{
+              const message= {
+                notification:{
+                  "title": "New Kalam",
+                  "body": `${kalamUploaderName} uploaded a new kalam, check out now!!`
+                },
+                data:{
+                  score: '850',
+                  time: '2:45'
+                },
+                token: token.token
+              }
+              
+              console.log("token:", token.token)
+              console.log("message", message)
+
+              messenger.send(message)
+              .then((sent)=>{
+                console.log(`Kalam upload notification sent to ${followers.name} `)
+              }).catch((error)=>{
+                console.log("Error while sending kalam upload notification to followers", error);
+              })
+            })
+           }
+          })
+          
+        }
+
+      })
+      
     }
 
 },{

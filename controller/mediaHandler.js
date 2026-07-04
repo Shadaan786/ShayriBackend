@@ -62,7 +62,8 @@ const mediaHandler=(req, res)=>{
                 kalamAudioPath: audioPath,
                 fileData: req.body,
                 kalamAudioFileName: audioFileName,
-                userId: req.user._id
+                userId: req.user._id,
+                kalamBg: true
             }
         })
     } else if(req.body.fileType === 'image'){
@@ -87,7 +88,8 @@ const mediaHandler=(req, res)=>{
                 kalamAudioPath: audioPath,
                 fileData: req.body,
                 kalamAudioFileName: audioFileName,
-                userId: req.user._id
+                userId: req.user._id,
+                kalamBg: false
             }
         })
     }

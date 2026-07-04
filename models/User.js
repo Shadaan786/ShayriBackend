@@ -42,7 +42,8 @@ const UserSchema = new mongoose.Schema({
     followers:[
         {
             follower:{
-                type: String
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
             },
 
             _id: false

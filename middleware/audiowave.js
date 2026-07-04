@@ -1,10 +1,14 @@
 const {spawn} = require('child_process');
 const { log } = require('console');
 const { sign } = require('crypto');
+const fs = require('fs');
+
 let finalWaveForm;
 
 
- const audioWave = async(inputPath, fileName)=>{
+ const audioWave = async(inputPath, fileName, albumCoverUrl)=>{
+
+
 
   return  new Promise(function(resolve, reject){
 

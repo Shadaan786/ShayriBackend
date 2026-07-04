@@ -9,7 +9,8 @@
     const Kalam = require('./models/Kalam');
     const cookieParser = require('cookie-parser')
     const server = require('./backend');
-const Album = require('./models/Album');
+    const Album = require('./models/Album');
+    const {gen} = require('./send');
 
     const app = express();
     const allClient = new Map();
@@ -217,6 +218,20 @@ const Album = require('./models/Album');
                 const check2 =  await Kalam.updateOne({_id: kalamId}, {$inc:{totalLikes: 1}})
                 console.log("check", check)
                 console.log("check2", check2)
+
+
+                 const jobData = {
+                    jobType: "kalamLike_notification",
+                  payload:  {
+                    kalamId: kalamId,
+                    likedBy: memberId,
+                    }
+
+                }
+
+                gen(jobData)
+
+               
                 }else{
 
 
