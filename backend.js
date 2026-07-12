@@ -64,8 +64,10 @@ const {devLogger} = require("./loggers/devLogger");
 const {handleKalamSearch} = require('./controller/searchController');
 const {handleAlbumSearch} = require('./controller/searchController');
 const redis = require("./redis");
-
-const logger = devLogger()
+const {otp_validator} = require('./controller/userController');
+const {resendOtp} = require('./controller/userController')
+const logger = devLogger();
+const {savingKalam, savedKalams} = require('./controller/savedKalamsController');
 
 
 
@@ -279,6 +281,7 @@ if(Object.keys(data).length === 0){
   // const userId = req.body.userId;
   const userId = url.parse(req.url, true).query.userId
   const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0});
+  const profilePic = userDb[0].profilePic
   logger.log({
     level: "debug",
     message: userId
@@ -318,7 +321,8 @@ if(Object.keys(data).length === 0){
      "userGhazalLength": ghazalLen,
       "userSherLength": sherCollectionLen,
        "userFollowers": netFollowers.followers.length,
-       "userInfo": user
+       "userInfo": user,
+       "profilePic": profilePic
       });
 
   
@@ -1105,6 +1109,12 @@ app.get('/api/user', async(req, res)=>{
   }
 
 })
+
+app.post('/api/verify_otp', otp_validator);
+app.get('/api/resendOtp',resendOtp);
+
+app.get('/api/savedKalams', savedKalams);
+app.post('/api/savingKalam', savingKalam);
 
 
 

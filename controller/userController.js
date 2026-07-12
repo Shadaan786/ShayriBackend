@@ -11,13 +11,14 @@ const { urlencoded } = require("express");
 const url = require('url')
 const redis = require('../redis');
 const { devLogger } = require("../loggers/devLogger");
+const {gen} = require("../send");
 
 
 async function handleUserSignup(req, res) {
     console.log("🔥 Signup route hit");
     console.log("📦 Request body:", req.body);
     
-    try {
+
         const { name, email, password } = req.body;
         
         if (!name || !email || !password) {
@@ -26,84 +27,197 @@ async function handleUserSignup(req, res) {
             });
         }
 
+        const doesExist = await User.findOne({email: email})
+
+        if(doesExist){
+            return res.json({
+                success: false,
+                message: "user with this email already exist"
+            })
+        }
+
+        
+       
+
         bcrypt.hash(password, saltRounds)
 
         .then((hash)=>{
             console.log("hashed password", hash);
 
+            const otp = Math.floor(Math.random()*(10e4 - 1000)+1000)
+            const userData = {
+                email: email,
+                password: hash,
+                name: name,
+                otp: otp
+            }
+
+
+            redis.set(`user:${email}`,JSON.stringify(userData));
+
+            gen({
+                jobType: "OTP_verification",
+                payload:{
+                    otp: otp,
+                    email: email
+                }
+            })
+
+            return res.status(200).json({
+                message: "Otp sent",
+                success: true
+            })
+
             // Storing Hashed Password in DataBase
 
-             User.create({
-            name,
-            email,
-            password: hash
-        })
+        //      User.create({
+        //     name,
+        //     email,
+        //     password: hash
+        // })
 
-        .then(()=>{
+        // .then(()=>{
 
-            console.log("User created successfully and hashed Password stored successfully in DataBase");
-             console.log("✅ User created successfully:");
-            //  jobQueue.push({
-            //     job_type: "welcome_mail",
-            //     email: email
-            //  })
+        //     console.log("User created successfully and hashed Password stored successfully in DataBase");
+        //      console.log("✅ User created successfully:");
+        //     //  jobQueue.push({
+        //     //     job_type: "welcome_mail",
+        //     //     email: email
+        //     //  })
 
-             mqStarter(JSON.stringify({
-                job_type: "welcome_mail",
-                email: email
-             }))
+        //      mqStarter(JSON.stringify({
+        //         job_type: "welcome_mail",
+        //         email: email
+        //      }))
 
                
 
               
             
-                return  res.status(201).json({
-            success: true, 
-            redirectUrl: '/',
-            message: "Signup successful",
-            });
+        //         return  res.status(201).json({
+        //     success: true, 
+        //     redirectUrl: '/',
+        //     message: "Signup successful",
+        //     });
         
              
 
-                // console.log("mailResponse", mailResponse)
+        //         // console.log("mailResponse", mailResponse)
 
 
 
 
              
 
-        })
+        // })
 
-        .catch((error)=>{
+        // .catch((error)=>{
 
-            console.log("Error while creating a user", error); 
-        })
+        //     console.log("Error while creating a user", error); 
+        // })
 
           
         })
 
         .catch((error)=>{
             console.log("Error while Hashng Password", error);
+            return
         })
         
         
-    } catch (error) {
-        console.log("❌ Error:", error.message);
+    // } catch (error) {
+    //     console.log("❌ Error:", error.message);
         
-        // Handle duplicate email error
-        if (error.code === 11000) {
-            return res.status(400).json({ 
-                message: "Email already exists" 
-            });
-        }
+    //     // Handle duplicate email error
+    //     if (error.code === 11000) {
+    //         return res.status(400).json({ 
+    //             message: "Email already exists" 
+    //         });
+    //     }
         
-        return res.status(500).json({ 
-            message: "Signup failed", 
-            error: error.message 
-        });
-    }
+    //     return res.status(500).json({ 
+    //         message: "Signup failed", 
+    //         error: error.message 
+    //     });
+    // }
 
   
+}
+const otp_validator = async(req, res)=>{
+
+     const email = url.parse(req.url, true).query.email
+     const otpFromUser = req.body.otp
+    
+
+    const user = await redis.get(`user:${email}`)
+
+    console.log("see user", email);
+    const otp = JSON.parse(user).otp
+    const password = JSON.parse(user).password
+    const name = JSON.parse(user).name
+    console.log("see from user", otpFromUser)
+    
+    if(otpFromUser == otp){
+
+        User.create({
+            name,
+            email,
+            password
+        }).then((userCreated)=>{
+            console.log("User successfully created")
+            return res.status(201).json({
+                success: true,
+                message: "User successfully created"
+            })
+        }).catch((error)=>{
+            console.log("Error while creating USer");
+            return res.status(404).json({
+                success: false,
+                message: `Error while creating user ${error}`
+            })
+        })
+    }
+
+
+
+}
+
+const resendOtp=async(req, res)=>{
+
+    const email = url.parse(req.url, true).query.email
+
+    const prevUserData = await redis.get(`user:${email}`)
+    const name = JSON.parse(prevUserData).name
+    const password = JSON.parse(prevUserData).password
+     await redis.del(`user:${email}`);
+
+     const newUserData={
+        name: name,
+        email: email,
+        password: password
+     }
+
+     const newUser = await redis.set(`user:${email}`,JSON.stringify(newUserData))
+
+     const newOtp = Math.floor(Math.random()*(10e4 - 1000)+1000)
+
+            gen({
+                jobType: "OTP_verification",
+                payload:{
+                    otp: newOtp,
+                    email: email
+                }
+            })
+
+            return res.status(200).json({
+                success: true,
+                message: "New OTP send to the provided email"
+            })
+
+
+
+
+    
 }
 
   async function handleUserLogin (req, res){
@@ -234,6 +348,6 @@ async function handleUserSignup(req, res) {
 
     }
 
-module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout};
+module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp};
 // module.exports = { handleUserLogin };
 

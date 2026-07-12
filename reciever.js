@@ -55,6 +55,17 @@ channel.consume(queue, (msg)=>{
         console.log("Error while sending welcome mail", error);
       })
 
+    }else if(data_final.jobType === 'OTP_verification'){
+
+    
+      sendMail(data_final.payload.email, `anks for joining Alfaz here's your secret pin to securely Signup for Alfaz \n secret pin:${data_final.payload.otp}`)
+      .then((mailResponse)=>{
+        console.log("OTP mail sent successfully", mailResponse)
+      }).catch((error)=>{
+        console.log("error while sending OTP Mail", error)
+      })
+
+
     }else if(data_final.jobType === 'notifying_user'){
 
       console.log("notifying user jobType matched")
