@@ -999,7 +999,7 @@ app.get('/api/customKalam',(req, res)=>{
 
   const token = req.cookies.uid;
   req.user = getUser(token);
-  Kalam.find({createdBy: req.user._id},{customStyles: 1, _id: 1, name: 1, type: 1, content: 1})
+  Kalam.find({createdBy: req.user._id},{customStyles: 1, _id: 1, name: 1, type: 1, content: 1}).sort({createdAt: -1})
   .then((customKalamFound)=>{
     console.log("customKalamFound", customKalamFound)
     return res.json(customKalamFound)
