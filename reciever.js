@@ -58,7 +58,7 @@ channel.consume(queue, (msg)=>{
     }else if(data_final.jobType === 'OTP_verification'){
 
     
-      sendMail(data_final.payload.email, `anks for joining Alfaz here's your secret pin to securely Signup for Alfaz \n secret pin:${data_final.payload.otp}`)
+      sendMail(data_final.payload.email, `Thanks for joining Alfaz here's your secret pin to securely Signup for Alfaz \n secret pin:${data_final.payload.otp}`)
       .then((mailResponse)=>{
         console.log("OTP mail sent successfully", mailResponse)
       }).catch((error)=>{
@@ -196,6 +196,7 @@ channel.consume(queue, (msg)=>{
         console.log("kalamUploader", kalamUploader)
         const followers = kalamUploader.followers
         const kalamUploaderName = kalamUploader.name;
+        const uploadedKalamName = data_final.payload.kalam_details.name
 
         if(followers.length === 0){
           return
@@ -203,8 +204,9 @@ channel.consume(queue, (msg)=>{
 
           followers.forEach((follower)=>{
            const tokens = follower.follower.FCMtoken
+            console.log("see token length", tokens.length)
            if(tokens.length === 0){
-            User.updateOne({_id:follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle: "New Kalam", notificationBody:`${kalamUploaderName} uploaded a new kalam`}}})
+            User.updateOne({_id:follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle: "New Kalam", notificationBody:`${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`}}})
             .then((notificationsStored)=>{
               console.log("Notifications stored in Database")
             }).catch((error)=>{
@@ -215,7 +217,7 @@ channel.consume(queue, (msg)=>{
               const message= {
                 notification:{
                   "title": "New Kalam",
-                  "body": `${kalamUploaderName} uploaded a new kalam, check out now!!`
+                  "body": `${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`
                 },
                 data:{
                   score: '850',
@@ -230,6 +232,12 @@ channel.consume(queue, (msg)=>{
               messenger.send(message)
               .then((sent)=>{
                 console.log(`Kalam upload notification sent to ${followers.name} `)
+                User.updateOne({_id: follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle:"New Kalam", notificationBody: `${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`}}})
+                .then((done)=>{
+                console.log("user notification stored in database too in case of token")
+                }).catch((error)=>{
+                console.log("Error while storing user notification in database in case of token")
+                })
               }).catch((error)=>{
                 console.log("Error while sending kalam upload notification to followers", error);
               })

@@ -66,13 +66,14 @@ channel.consume(queue, msg=>{
             const attach = await overlay(audioWaveGenerated, media_data.payload.kalamBgPath, media_data.payload.kalamAudioFileName)
                         const videoUrl = await cloudinaryAudio(attach);
 
-                await dbImageUploader(media_data.payload.fileData, media_data.payload.userId, imageUrl, videoUrl);
+          const uploaded_result =      await dbImageUploader(media_data.payload.fileData, media_data.payload.userId, imageUrl, videoUrl);
             console.log("see videoUrl kalamBg is true", videoUrl)
                         console.log("see imageUrl when kalamBg is true", imageUrl)
                         gen({
                             jobType: "kalamUpload_notification",
                             payload:{
-                                uploadBy: media_data.payload.userId
+                                uploadBy: media_data.payload.userId,
+                              kalam_details: uploaded_result
                             }
                         })
 

@@ -1116,6 +1116,24 @@ app.get('/api/resendOtp',resendOtp);
 app.get('/api/savedKalams', savedKalams);
 app.post('/api/savingKalam', savingKalam);
 
+app.get('/api/kalam', (req, res)=>{
+
+  console.log(req.url);
+  
+  const kalamId = url.parse(req.url, true).query.kalamId;
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+
+  Kalam.findOne({_id: kalamId})
+  .then((kalamFound)=>{
+  return res.status(201).json(kalamFound)
+  }).catch((error)=>{
+  
+    console.log("Error while querying specified kalam", error)
+    return res.status(500).json(error)
+  })
+})
+
 
 
 // sendMail("shadaan.dev@gmail.com")
