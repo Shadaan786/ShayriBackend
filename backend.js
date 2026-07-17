@@ -460,31 +460,67 @@ app.get('/api/social', async(req, res)=>{
 
    const page = url.parse(req.url, true).query.page;
   const limit = url.parse(req.url, true).query.limit;
-
-  console.log("see url",req.url)
-
-  const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
-  const allKalamsName = await Kalam.find({}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
-   
-  
-
-  
-
-  
- 
   const token = req.cookies.uid;
-
   req.user = getUser(token);
+const searchType = url.parse(req.url, true).query.searchType
 
-  const userId = await User.find({_id: req.user._id});
+  console.log("see url",req.url);
+ const userId = await User.find({_id: req.user._id});
+ console.log("userId", userId);
+const following = await User.find({followers:{follower: req.user._id}}, {_id: 1});
+const newFollow=[];
+if (following){
+
+  // const new_follow = await following.map((item, i)=>{
+  //   item._id
+  // })
+
   
-  const netKalams = await Kalam.find();
+  following.forEach((item)=>{
+    newFollow.push(item._id);
+  })
+
+
+  console.log("s", newFollow)
+
+}
+console.log("Following", following)
+ const netKalams = await Kalam.find();
   const totalLength = netKalams.length;
 
   const likedKalams = await  Kalam.find({likedBy: req.user._id}, {_id: 1})
   // console.log("check lk", likedKalams)
 
+  console.log("vvv",following.values)
 
+
+if(!following){
+  
+  const feed_excluding_followers = Kalams.find({}, {title:1, content:1, name:1, createdAt:1, _id:1, customStyles:1}).skip(page*limit-limit).limit(limit);
+
+  
+  return res.json({
+    
+    feed_excluding_followers,
+    userId,
+    totalLength,
+    likedKalams
+    
+
+  })
+
+
+}else{
+
+  // const userFeed = await Kalams.find({createdBy:{$inc:following}},{type:1, content:1, name:1, createdAt:1, _id:1, customStyles:1}).skip(page*limit-limit).limit(limit);
+  // if(userFeed.length === 0){
+
+  //    const feed_excluding_followers = Kalams.find({}, {title:1, content:1, name:1, createdAt:1, _id:1, customStyles:1}).skip(page*limit-limit).limit(limit);
+
+     if(searchType === "feed_search"){
+
+  const allKalamsName = await Kalam.find({createdBy:{$in: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
+  
   return res.json({
     
     allKalamsName,
@@ -494,7 +530,40 @@ app.get('/api/social', async(req, res)=>{
     
 
   })
+   
+}else if(searchType === "all_kalams"){
+
+  const allKalamsName = await Kalam.find({createdBy:{$nin: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
+   
+  return res.json({
+    
+    allKalamsName,
+    userId,
+    totalLength,
+    likedKalams
+    
+
+  })
+   
+}
+
+  }
 })
+
+  // const allKalam = await Kalam.find({}, {title: 1, content: 1, _id: 0})
+
+ 
+  
+
+  
+
+
+
+ 
+ 
+
+
+
 
 
 app.get('/api/kalam/comment', async (req, res)=>{
