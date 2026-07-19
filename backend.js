@@ -520,6 +520,7 @@ if(!following){
      if(searchType === "feed_search"){
 
   const allKalamsName = await Kalam.find({createdBy:{$in: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
+  console.log("see feed_search kalams", allKalamsName);
   
   return res.json({
     
@@ -534,6 +535,7 @@ if(!following){
 }else if(searchType === "all_kalams"){
 
   const allKalamsName = await Kalam.find({createdBy:{$nin: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
+  console.log('hey', allKalamsName)
    
   return res.json({
     
