@@ -11,6 +11,7 @@
     const server = require('./backend');
     const Album = require('./models/Album');
     const {gen} = require('./send');
+    const UserNotification = require('./models/Notifications');
 
     const app = express();
     const allClient = new Map();

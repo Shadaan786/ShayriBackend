@@ -68,6 +68,8 @@ const {otp_validator} = require('./controller/userController');
 const {resendOtp} = require('./controller/userController')
 const logger = devLogger();
 const {savingKalam, savedKalams} = require('./controller/savedKalamsController');
+const {ObjectId} = require("mongoose");
+const UserNotification = require("./models/Notifications");
 
 
 
@@ -1205,6 +1207,70 @@ app.get('/api/kalam', (req, res)=>{
   })
 })
 
+app.get('/api/featuredCurators', async(req, res)=>{
+
+  Kalam.find({},{createdBy:1, _id:0})
+  .then((creators)=>{
+    console.log("creators", creators)
+
+    let curatorsId = [];
+    let curatorsId2 = [];
+
+      creators.forEach((item)=>{
+
+      curatorsId.push(item.createdBy.toString())
+
+    })
+
+    const creators2 = creators[0]; 
+    console.log("r", creators2);
+    
+    const curators = new Set(curatorsId);
+
+        console.log("curatorsId",curatorsId)
+        console.log("curatorsSet",curators)
+
+        const curatorsIdArray = Array.from(curators)
+        console.log("see curatorsIdArray", curatorsIdArray)
+
+        curatorsIdArray.forEach((item)=>{
+          console.log("See Item", item)
+          curatorsId2.push(new mongoose.Types.ObjectId(item))
+        })
+        console.log("see final Array", curatorsId2)
+
+        User.find({_id: {$in: curatorsId2}}).limit(20)
+
+        .then((authors)=>{
+          return res.json(authors);
+        }).catch((error)=>{
+          console.log("Error while fetching authors", error);
+          return res.json(error)
+        })
+
+  })
+})
+
+app.post('/api/notificationStatus', (req, res)=>{
+  const {notificationId} = req.body;
+  
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+
+  UserNotification.updateOne({_id: notificationId},{isSeen: true})
+  .then((statusUpdated)=>{
+    return res.status(201).json({
+      success: true,
+      message: "Notification status updated successfully"
+    })
+  }).catch((error)=>{
+    console.log("Error while updating notification status");
+    return res.status(501).json({
+      success: false,
+      message: `Error while updating status of notification ${error}`
+    })
+  })
+})
 
 
 // sendMail("shadaan.dev@gmail.com")

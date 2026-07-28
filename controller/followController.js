@@ -18,9 +18,9 @@ const handleFollow=async(req, res)=>{
 
     const followerName = follower.name;
 
-    const fcm =await User.findOne({_id: userId});
+    const toFollow =await User.findOne({_id: userId});
 
-    const fcmLength = fcm.FCMtoken.length;
+    const fcmLength = toFollow.FCMtoken.length;
     
 
     if(fcmLength === 0){
@@ -53,11 +53,11 @@ const handleFollow=async(req, res)=>{
         })
     }else{
 
-        const fctoken =  fcm.FCMtoken[0].token;
+        const fctoken =  toFollow.FCMtoken[0].token;
 
          console.log("fccccc", fctoken);
 
-    console.log("fcm", fcm)
+    console.log("fcm", toFollow)
 
     // console.log(fctoken);
 
@@ -81,6 +81,7 @@ const handleFollow=async(req, res)=>{
         // }
         const jobData={
             jobType: "notifying_user",
+            follower: toFollow._id,
             payload:{
                 notification: {
                     "title": "New Follower",

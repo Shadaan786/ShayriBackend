@@ -4,6 +4,7 @@ const {messenger} = require('./firebase');
 const mqStarter = require('./send');
 const User = require('./models/User');
 const Kalam = require('./models/Kalam');
+const UserNotification = require('./models/Notifications');
 let queue2;
 
 const reciever =async(makeSure)=>{
@@ -91,7 +92,13 @@ channel.consume(queue, (msg)=>{
           console.log("Update res PRE", updateResPre);
         })
 
-        User.updateOne({FCMtoken: data_final.token}, {$push:{notifications:{notificationType: "New Follower", notificationTitle: "You got a new follower", notificationBody: "A new user started following you"}}})
+        // User.updateOne({FCMtoken: data_final.token}, {$push:{notifications:{notificationType: "New Follower", notificationTitle: "You got a new follower", notificationBody: "A new user started following you"}}})
+
+        UserNotification.create({
+          notifiedUser: data_final.follower,
+          notificationType: "New Follower", 
+          notificationTitle: "You got a new follower", 
+          notificationBody: "A new user started following you"})
 
         .then((updatedResult)=>{
           console.log("Update_result", updatedResult)
@@ -112,7 +119,14 @@ channel.consume(queue, (msg)=>{
 
     }else if(data_final.jobType === "offline_user_notification"){
 
-      User.findByIdAndUpdate(data_final.payload.toNotify,{$addToSet:{notifications:{notificationType: "Follow_notification", notificationTitle: data_final.payload.notificationTitle, notificationBody: data_final.payload.notificationBody, toNavigate: `/Profile?=${data_final.payload.follower}`}}})
+      // User.findByIdAndUpdate(data_final.payload.toNotify,{$addToSet:{notifications:{notificationType: "Follow_notification", notificationTitle: data_final.payload.notificationTitle, notificationBody: data_final.payload.notificationBody, toNavigate: `/Profile?=${data_final.payload.follower}`}}})
+      UserNotification.create({
+        notifiedUser: data_final.payload.toNotify,
+        notificationType: "Follow_notification", 
+        notificationTitle: data_final.payload.notificationTitle, 
+        notificationBody: data_final.payload.notificationBody, 
+        toNavigate: `/Profile?=${data_final.payload.follower}`
+      })
 
       .then((offlineNotificationResult)=>{
         console.log("Offline user notified successfully", offlineNotificationResult)
@@ -168,7 +182,15 @@ channel.consume(queue, (msg)=>{
           try{
 
           
-        const userNotified =  await User.updateOne({_id: createdBy},{$push:{notifications:{notificationType:"kalam liked",notificationTitle:"You got a like on your comment", notificationBody: `${likerName} liked your kalam`}}})
+        // const userNotified =  await User.updateOne({_id: createdBy},{$push:{notifications:{notificationType:"kalam liked",notificationTitle:"You got a like on your comment", notificationBody: `${likerName} liked your kalam`}}})
+
+        const notifyingUser = await UserNotification.create({
+          notifiedUser: createdBy,
+          notificationType:"kalam liked",
+          notificationTitle:"You got a like on your comment",
+          notificationBody: `${likerName} liked your kalam`,
+          toNavigate: `/profile?userId=${likedBy._id}`
+        })
         console.log("User notification stored successfully in MonogDb1", userNotified)
 
           }catch(error){
@@ -178,7 +200,15 @@ channel.consume(queue, (msg)=>{
          
         }else{
 
-    try{ const userNotified =  await User.updateOne({_id: createdBy},{$push:{notifications:{notificationType:"kalam liked",notificationTitle:"You got a like on your comment", notificationBody: `${likerName} liked your kalam`}}})
+    // try{ const userNotified =  await User.updateOne({_id: createdBy},{$push:{notifications:{notificationType:"kalam liked",notificationTitle:"You got a like on your comment", notificationBody: `${likerName} liked your kalam`}}})
+
+    try{
+        const notifyingUser = await UserNotification.create({
+          notifiedUser: createdBy,
+          notificationType:"kalam liked",
+          notificationTitle:"You got a like on your comment",
+          notificationBody: `${likerName} liked your kalam`
+        })
        console.log("User notification stored successfully in MongoDb2", userNotified)
       }catch(error){
         console.log("Error while storing user notification in MongoDB2", error)
@@ -206,7 +236,15 @@ channel.consume(queue, (msg)=>{
            const tokens = follower.follower.FCMtoken
             console.log("see token length", tokens.length)
            if(tokens.length === 0){
-            User.updateOne({_id:follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle: "New Kalam", notificationBody:`${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`}}})
+            // User.updateOne({_id:follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle: "New Kalam", notificationBody:`${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`}}})
+
+            UserNotification.create({
+              notifiedUser: follower.follower._id,
+              notificationType: "User upload notification", 
+              notificationTitle: "New Kalam", 
+              notificationBody:`${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, 
+              toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`
+            })
             .then((notificationsStored)=>{
               console.log("Notifications stored in Database")
             }).catch((error)=>{
@@ -232,7 +270,14 @@ channel.consume(queue, (msg)=>{
               messenger.send(message)
               .then((sent)=>{
                 console.log(`Kalam upload notification sent to ${followers.name} `)
-                User.updateOne({_id: follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle:"New Kalam", notificationBody: `${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`}}})
+                // User.updateOne({_id: follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle:"New Kalam", notificationBody: `${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`}}})
+                  UserNotification.create({
+                  notifiedUser: follower.follower._id,
+                  notificationType: "User upload notification", 
+                  notificationTitle: "New Kalam", 
+                  notificationBody:`${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, 
+                  toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`
+                })
                 .then((done)=>{
                 console.log("user notification stored in database too in case of token")
                 }).catch((error)=>{
