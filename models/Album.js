@@ -37,7 +37,7 @@ const AlbumSchema = new Schema({
     createdBy:{
 
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'User',
 
     },
     category:{
@@ -45,15 +45,16 @@ const AlbumSchema = new Schema({
         require: true
     },
     
- totalStars:{
+ totalLikes:{
     type: Number,
     default: 0,
     required: true
    },
 
-   startsBy:[
+   likesBy:[
     {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
    ],
 

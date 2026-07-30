@@ -282,7 +282,7 @@ if(Object.keys(data).length === 0){
   console.log("Primary database ran");
   // const userId = req.body.userId;
   const userId = url.parse(req.url, true).query.userId
-  const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0});
+  const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0, featuredVerse: 1});
   const profilePic = userDb[0].profilePic
   logger.log({
     level: "debug",
@@ -324,7 +324,8 @@ if(Object.keys(data).length === 0){
       "userSherLength": sherCollectionLen,
        "userFollowers": netFollowers.followers.length,
        "userInfo": user,
-       "profilePic": profilePic
+       "profilePic": profilePic,
+       "spotlightVerse": userDb.featuredVerse
       });
 
   
@@ -804,6 +805,7 @@ app.get('/api/albumsLive', (req, res)=>{
   console.log("req.query", req.query)
 
   const {limit, page, query} = url.parse(req.url, true).query;
+  const userId = url.parse(req.url, true).query.userId
   
 
   if(query === 'all'){
@@ -845,7 +847,28 @@ app.get('/api/albumsLive', (req, res)=>{
       console.log("Error while searching motivation albums", error);
       return res.json(error);
     })
-  }else{
+  
+  }else if(query === 'most_liked'){
+    console.log("See userId", userId)
+
+    Album.find({isLive: 0, createdBy: userId}).skip(1*limit - limit).limit(limit)
+
+    .then((albumFound)=>{
+
+      console.log("See live albums live", albumFound)
+      return res.status(201).json({
+        success: true,
+        albums: albumFound
+      })
+    }).catch((error)=>{
+      console.log("Error while querying albums", error);
+      return res.status(501).json({
+        success: false,
+        message: error
+      })
+    })
+  }
+  else{
      Album.find({$text: {$search: query}}).skip(page*limit - limit).limit(limit)
 
     .then((albumsSearched)=>{
@@ -1272,6 +1295,30 @@ app.post('/api/notificationStatus', (req, res)=>{
   })
 })
 
+app.post('/api/addVerse', (req, res)=>{
+
+  const token = req.cookies.uid;
+  req.user = getUser(token);
+
+  const verse = req.body.verse;
+
+  User.updateOne({_id: req.user._id},{$set: {featuredVerse: verse}})
+  .then((result)=>{
+    console.log("verse added successfully", result)
+
+    return res.status(201).json({
+      success: true,
+      message: "Verse added successfully"
+    })
+  }).catch((error)=>{
+    console.log("Error while adding verse", error);
+
+    return res.status(501).json({
+      success: false,
+      message: error
+    })
+  })
+})
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server

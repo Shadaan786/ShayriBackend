@@ -29,6 +29,14 @@ const UserSchema = new mongoose.Schema({
     profilePic:{
         type: String
     },
+    bio:{
+
+        type: String
+
+    },
+    featuredVerse:{
+        type: String
+    },
 
     FCMtoken:[
         {
