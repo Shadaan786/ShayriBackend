@@ -810,6 +810,8 @@ app.get('/api/albumsLive', (req, res)=>{
 
   if(query === 'all'){
 
+    console.log("Hey all")
+
     // console.log("req.body", req.body.category)
     Album.find({isLive: 1}).skip(page*limit - limit).limit(limit)
 
@@ -1313,6 +1315,29 @@ app.post('/api/addVerse', (req, res)=>{
   }).catch((error)=>{
     console.log("Error while adding verse", error);
 
+    return res.status(501).json({
+      success: false,
+      message: error
+    })
+  })
+})
+
+app.post('/api/deleteKalam', (req, res)=>{
+
+    const kalamId = req.body.kalamId;
+
+  console.log("See kalamId", kalamId)
+
+  console.log("Deleting user kalam");
+  Kalam.deleteOne({_id: kalamId})
+  .then((result)=>{
+    console.log("Kalam Deleted successfully");
+    return res.status(201).json({
+      success: true,
+      message: "Kalam deleted successfully"
+    })
+  }).catch((error)=>{
+    console.log("Error while deleting the requested kalam", error);
     return res.status(501).json({
       success: false,
       message: error
