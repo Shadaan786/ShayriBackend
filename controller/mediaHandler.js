@@ -11,8 +11,11 @@ const mediaHandler=(req, res)=>{
     const audioPath = req.files?.kalamAudio?.[0].path;
     const imagePath = req.files?.kalamBg?.[0].path;
     const kalamId = req.body
-    console.log("see files", req.files);
-    console.log("See req.body", req.body)
+    const profilelPic_path = req.file?.path;
+    const userId = req.body?.userId;
+    const profileCoverPath = req.file?.path;
+    // console.log("see files", req.files);
+    // console.log("See req.body", req.body)
     
     console.log("see files /:mediaHandler.js 7:59", req.files?.kalamAudio?.[0].mimetype);
 
@@ -90,6 +93,28 @@ const mediaHandler=(req, res)=>{
                 kalamAudioFileName: audioFileName,
                 userId: req.user._id,
                 kalamBg: false
+            }
+        })
+    }else if(req.body.fileType === "profilePic"){
+
+        console.log("Profile pic uplaoder controller ran");
+
+        mediaData({
+            fileType: 'profilePic',
+            payload: {
+                path: profilelPic_path,
+                userId: userId,
+
+            }
+        })
+        
+    }else if(req.body.fileType === 'profileCover'){
+
+        mediaData({
+            fileType: 'profileCover',
+            payload:{
+                path: profileCoverPath,
+                userId: userId
             }
         })
     }

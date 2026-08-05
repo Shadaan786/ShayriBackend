@@ -35,7 +35,7 @@
 
         
     
-        
+        console.log("see path", imagePath)
 
         
    return cloudinary.uploader .upload( imagePath,{

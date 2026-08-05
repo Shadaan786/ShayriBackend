@@ -29,6 +29,11 @@ const UserSchema = new mongoose.Schema({
     profilePic:{
         type: String
     },
+
+    profileCover:{
+        type: String
+    },
+    
     bio:{
 
         type: String

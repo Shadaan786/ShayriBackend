@@ -6,7 +6,8 @@ const {audioWave} = require('./middleware/audiowave');
 const {cloudinaryAudio} = require('./utilities/cloudinaryAudio')
 const overlay = require('./middleware/overlay');
 const {gen} = require('./send');
-
+const dbProfileUploader = require('./utilities/dbProfileUpload')
+const dbProfileCoverUpload = require('./utilities/dbProfileCoverUpload');
 
 
 const mediaQueueConsumer = async(makeSure2)=>{
@@ -127,6 +128,25 @@ channel.consume(queue, msg=>{
             
         })
         check4()
+    }else if(media_data.fileType === 'profilePic'){
+        const check5 = (async()=>{
+
+          const url =  await  cloudfareUploader(media_data.payload.path)
+                await  dbProfileUploader(media_data.payload.userId, url)
+
+        })
+
+        check5()
+      
+    }else if(media_data.fileType === 'profileCover'){
+        const check6 = (async()=>{
+            const url = await cloudfareUploader(media_data.payload.path);
+            await dbProfileCoverUpload(media_data.payload.userId, url)
+            
+
+
+        })
+        check6();
     }
 
 },{

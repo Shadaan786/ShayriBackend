@@ -282,7 +282,7 @@ if(Object.keys(data).length === 0){
   console.log("Primary database ran");
   // const userId = req.body.userId;
   const userId = url.parse(req.url, true).query.userId
-  const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0, featuredVerse: 1});
+  const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0, featuredVerse: 1, profileCover: 1});
   const profilePic = userDb[0].profilePic
   logger.log({
     level: "debug",
@@ -325,7 +325,8 @@ if(Object.keys(data).length === 0){
        "userFollowers": netFollowers.followers.length,
        "userInfo": user,
        "profilePic": profilePic,
-       "spotlightVerse": userDb.featuredVerse
+       "spotlightVerse": userDb.featuredVerse,
+       "profileCover": userDb.profileCover
       });
 
   
@@ -596,7 +597,9 @@ app.get('/api/kalam/comment', async (req, res)=>{
 app.post('/api/kalam/comm', commentController )
 
 
-app.post('/upload', upload.single('image'), cloudfareUploader, handleUserProfile)
+// app.post('/upload', upload.single('image'), cloudfareUploader, handleUserProfile)
+app.post('/upload', upload.single('profilePic'), mediaHandler)
+app.post('/upload/ProfileCover', upload.single('profileCover'), mediaHandler)
 
 
   

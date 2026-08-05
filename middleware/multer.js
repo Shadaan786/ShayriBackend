@@ -13,6 +13,7 @@ const storage = multer.diskStorage({destination: function (req, file, cb){
 
 
     const fieldName = file.fieldname;
+    console.log("See fieldName", fieldName)
    
     
     if (fieldName === "kalamBg"){
@@ -42,7 +43,9 @@ const storage = multer.diskStorage({destination: function (req, file, cb){
         cb(null, './uploads/kalamAudio');
         
         return
-    }else if(fieldName === 'image'){
+    }else if(fieldName === 'profilePic'){
+
+
 
 
             cb(null, './uploads/profilePics')
@@ -55,10 +58,15 @@ const storage = multer.diskStorage({destination: function (req, file, cb){
 
     }else if(fieldName === 'albumCover'){
 
-        cb(null, './uploads/albumCovers')
+        cb(null, './uploads/albumCovers');
 
         return;
 
+    }else if(fieldName === 'profileCover'){
+
+        cb(null, './temp/img');
+
+        return;
     }
 
 
