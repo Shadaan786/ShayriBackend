@@ -70,6 +70,7 @@ const logger = devLogger();
 const {savingKalam, savedKalams} = require('./controller/savedKalamsController');
 const {ObjectId} = require("mongoose");
 const UserNotification = require("./models/Notifications");
+const {handleProfilePicDeletion} = require('./controller/userController');
 
 
 
@@ -326,7 +327,7 @@ if(Object.keys(data).length === 0){
        "userInfo": user,
        "profilePic": profilePic,
        "spotlightVerse": userDb.featuredVerse,
-       "profileCover": userDb.profileCover
+       "profileCover": userDb[0].profileCover
       });
 
   
@@ -1347,6 +1348,8 @@ app.post('/api/deleteKalam', (req, res)=>{
     })
   })
 })
+
+app.post('/api/deleteProflePic', handleProfilePicDeletion);
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server

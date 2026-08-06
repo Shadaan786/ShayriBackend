@@ -12,6 +12,8 @@ const url = require('url')
 const redis = require('../redis');
 const { devLogger } = require("../loggers/devLogger");
 const {gen} = require("../send");
+const { error } = require("console");
+const { message } = require("../firebase");
 
 
 async function handleUserSignup(req, res) {
@@ -348,6 +350,29 @@ const resendOtp=async(req, res)=>{
 
     }
 
-module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp};
+    const handleProfilePicDeletion=(req, res)=>{
+
+        const {profileLink} = req.body;
+        const token = req.cookies.uid;
+        req.user = getUser(token);
+
+        User.updateOne({_id: req.user._id},{$unset:{profilePic:profileLink}})
+        .then((result)=>{
+            console.log("Profile pic deleted successfully");
+            return res.status(201).json({
+                success: true,
+                message: "Profile pic deleted successfully"
+            })
+        }).catch((error)=>{
+            console.log("Error while deleting profile pic", error);
+            return res.status(501).json({
+                success: false,
+                message: error
+            })
+        })
+
+    }
+
+module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion};
 // module.exports = { handleUserLogin };
 
