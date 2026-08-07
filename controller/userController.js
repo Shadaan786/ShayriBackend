@@ -373,6 +373,31 @@ const resendOtp=async(req, res)=>{
 
     }
 
-module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion};
+    const handleProfileCoverDeletion = (req, res)=>{
+        const token = req.cookies.uid;
+        req.user = getUser(token);
+
+
+        const {profileCover} = req.body;
+
+        User.updateOne({_id: req.user._id},{$unset:{profileCover:profileCover}})
+        .then((result)=>{
+            console.log("Profile cover removed successfully");
+
+            return res.status(201).json({
+                success: true,
+                message: "Profile cover removed successfully"
+            })
+        }).catch((error)=>{
+            console.log("Error while removing profile cover", error);
+
+            return res.status(501).json({
+                success: false,
+                message: `Error while removing profile cover: ${error}`
+            })
+        })
+    }
+
+module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion, handleProfileCoverDeletion};
 // module.exports = { handleUserLogin };
 

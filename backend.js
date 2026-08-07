@@ -71,6 +71,7 @@ const {savingKalam, savedKalams} = require('./controller/savedKalamsController')
 const {ObjectId} = require("mongoose");
 const UserNotification = require("./models/Notifications");
 const {handleProfilePicDeletion} = require('./controller/userController');
+const { handleProfileCoverDeletion} = require('./controller/userController');
 
 
 
@@ -1350,6 +1351,7 @@ app.post('/api/deleteKalam', (req, res)=>{
 })
 
 app.post('/api/deleteProflePic', handleProfilePicDeletion);
+app.post('/api/deleteProfileCover', handleProfileCoverDeletion);
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server
