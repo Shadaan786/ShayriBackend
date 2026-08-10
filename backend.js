@@ -72,8 +72,8 @@ const {ObjectId} = require("mongoose");
 const UserNotification = require("./models/Notifications");
 const {handleProfilePicDeletion} = require('./controller/userController');
 const { handleProfileCoverDeletion} = require('./controller/userController');
-
-
+const {userPostHandler} = require('./controller/UserPostHandler');
+const {getUserPosts} = require('./controller/UserPostHandler');
 
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
@@ -1352,6 +1352,8 @@ app.post('/api/deleteKalam', (req, res)=>{
 
 app.post('/api/deleteProflePic', handleProfilePicDeletion);
 app.post('/api/deleteProfileCover', handleProfileCoverDeletion);
+app.post('/api/userPost', userPostHandler);
+app.get('/api/userPosts', getUserPosts);
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const PostSchema = new mongoose.Schema({
 
-    postBY:{
+    postBy:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
@@ -23,7 +23,7 @@ const PostSchema = new mongoose.Schema({
     },
 
     likes:{
-        types: Number,
+        type: Number,
         default: 0
     },
 },
