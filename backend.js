@@ -74,7 +74,7 @@ const {handleProfilePicDeletion} = require('./controller/userController');
 const { handleProfileCoverDeletion} = require('./controller/userController');
 const {userPostHandler} = require('./controller/UserPostHandler');
 const {getUserPosts} = require('./controller/UserPostHandler');
-
+const {fetchUserComments} = require('./controller/commentController')
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -574,25 +574,27 @@ if(!following){
 
 
 
-app.get('/api/kalam/comment', async (req, res)=>{
+// app.get('/api/kalam/comment', async (req, res)=>{
 
-  const id = url.parse(req.url, true).query.kalamId
-  console.log("kalamd_id", id)
+//   const id = url.parse(req.url, true).query.kalamId
+//   console.log("kalamd_id", id)
 
-  const token = req.cookies.uid;
-  req.user = getUser(token);
+//   const token = req.cookies.uid;
+//   req.user = getUser(token);
 
-  const userKalam = await Kalam.find({_id: id}, {comments: 1, _id: 0}).populate("comments.commentBy")
-  const mId = await User.find({_id: req.user._id})
+//   const userKalam = await Kalam.find({_id: id}, {comments: 1, _id: 0}).populate("comments.commentBy")
+//   const mId = await User.find({_id: req.user._id})
  
 
-  return res.json({
+//   return res.json({
 
-    userKalam,
-    mId
+//     userKalam,
+//     mId
     
-  });
-})
+//   });
+// })
+
+app.get('/api/comment', fetchUserComments)
 
 
 

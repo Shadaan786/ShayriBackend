@@ -51,7 +51,7 @@ const getUserPosts=(req, res)=>{
     Post.find({})
     .populate("postBy")
     .populate("featuredAlbum")
-    .populate("featurdKalam")
+    .populate("featurdKalam").sort({createdAt: -1})
     .then((result)=>{
         return res.status(201).json({
             success: true,
