@@ -9,11 +9,13 @@ const fetchUserComments=(req, res)=>{
     req.user = getUser(token);
     const {commentType, kalamId, postId} = url.parse(req.url, true).query;
 
+    console.log("Comment controller hit")
+
     if (commentType === 'kalamComment'){
 
     
 
-    Comment.find({commentBy: req.user._id, commentFromKalam: kalamId})
+    Comment.find({commentFromKalam: kalamId})
     .then((result)=>{
         return res.status(200).json({
             success: true,
@@ -29,7 +31,7 @@ const fetchUserComments=(req, res)=>{
     })
 }else if(commentType === 'postComment'){
 
-       Comment.find({commentBy: req.user._id, commentFromPost: postId})
+       Comment.find({commentFromPost: postId})
     .then((result)=>{
         return res.status(200).json({
             success: true,
@@ -96,10 +98,7 @@ console.log(req.body);
     })
  }
 
-
-
-    return res.json("Comment added succesfully");
-
 }
+
 
 module.exports = {commentController, fetchUserComments};
