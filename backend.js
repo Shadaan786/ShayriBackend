@@ -603,7 +603,8 @@ app.post('/api/kalam/comm', commentController )
 
 // app.post('/upload', upload.single('image'), cloudfareUploader, handleUserProfile)
 app.post('/upload', upload.single('profilePic'), mediaHandler)
-app.post('/upload/ProfileCover', upload.single('profileCover'), mediaHandler)
+app.post('/upload/ProfileCover', upload.single('profileCover'), mediaHandler);
+app.post('/upload/albumBgCover', upload.single('albumBgCover'), mediaHandler);
 
 
   

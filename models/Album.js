@@ -29,6 +29,10 @@ const AlbumSchema = new Schema({
         type: String
     },
 
+    albumBgCover:{
+        type: String
+    },
+
     isLive:{
         type: Number,
         default: 0
