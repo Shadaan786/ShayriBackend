@@ -75,6 +75,7 @@ const { handleProfileCoverDeletion} = require('./controller/userController');
 const {userPostHandler} = require('./controller/UserPostHandler');
 const {getUserPosts} = require('./controller/UserPostHandler');
 const {fetchUserComments} = require('./controller/commentController')
+const {handleAlbumLike} = require('./controller/AlbumController');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -1357,6 +1358,7 @@ app.post('/api/deleteProflePic', handleProfilePicDeletion);
 app.post('/api/deleteProfileCover', handleProfileCoverDeletion);
 app.post('/api/userPost', userPostHandler);
 app.get('/api/userPosts', getUserPosts);
+app.post('/api/likeAlbum', handleAlbumLike)
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server

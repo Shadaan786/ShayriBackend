@@ -42,6 +42,8 @@ const handleKalamSearch=(req, res)=>{
   Kalam.find({$text:{$search: searchQuery}}).skip(page*limit - limit).limit(limit)
   .then((searchKalamsFound)=>{
 
+    console.log("Kalams found", searchKalamsFound);
+
     return res.status(200).json({
       kalamsSearched: searchKalamsFound
     })

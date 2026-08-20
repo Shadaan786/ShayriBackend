@@ -76,4 +76,86 @@ const albumCoverController=(req, res, next)=>{
 
 }
 
-module.exports = {albumController, albumCoverController};
+const getFeaturedAlbum=()=>{
+
+    Album.find({}).sort()
+    
+}
+
+const handleAlbumLike=(req, res)=>{
+
+    const {albumId} = req.body;
+    const token = req.cookies.uid;
+    req.user = getUser(token);
+
+
+    Album.findOne({_id: albumId, likesBy: req.user._id})
+    .then((likedAlbum)=>{
+        if(!likedAlbum){
+            Album.updateOne({_id: albumId},{$addToSet:{likesBy:req.user._id}})
+            .then((likeUploaded)=>{
+                console.log("Album like uploaded");
+                Album.updateOne({_id:albumId},{$inc:{totalLikes:1}})
+                .then((totalLikesIncremented)=>{
+                    console.log("Total likes successfully incremented");
+
+                    return res.status(201).json({
+                        success: true,
+                        message: "Album liked successfully"
+                    })
+                }).catch((error)=>{
+                    console.log("Error while incrementing total likes in album", error);
+                    return res.status(501).json({
+                        success: false,
+                        message: error
+                    })
+                })
+            }).catch((error)=>{
+                console.log("Error while uploading album like to database", error);
+                return res.status(501).json({
+                    success: false,
+                    message: error
+                })
+            })
+        }else{
+            Album.updateOne({_id: albumId},{$pull:{likesBy: req.user._id}})
+            .then((disliked)=>{
+                console.log("Album disliked successfully");
+
+                 Album.updateOne({_id: albumId},{$inc:{totalLikes:-1}})
+                .then((totalDecremented)=>{
+
+                    console.log("Total likes decremented successfully");
+                    
+                     return res.status(201).json({
+                    success: true,
+                    message: "Album disliked successfully"
+                })
+
+                }).catch((error)=>{
+                    console.log("Error while decrementing total likes", error);
+                    return res.status(501).json({
+                        success: false,
+                        message: error
+                    })
+                })
+               
+               
+            }).catch((error)=>{
+                console.log("Error while disliking the album", error);
+                return res.status(501).json({
+                    success: false,
+                    message: error
+                })
+            })
+        }
+    }).catch((error)=>{
+        console.log("Error while searching for the liked kalam", error);
+        return res.status(501).json({
+            success: false,
+            message: error
+        })
+    })
+}
+
+module.exports = {albumController, albumCoverController, handleAlbumLike};
