@@ -76,6 +76,7 @@ const {userPostHandler} = require('./controller/UserPostHandler');
 const {getUserPosts} = require('./controller/UserPostHandler');
 const {fetchUserComments} = require('./controller/commentController')
 const {handleAlbumLike} = require('./controller/AlbumController');
+const featuredAlbum = require('./controller/featuredAlbumController');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -739,7 +740,6 @@ console.log("Album with updated kalams")
 const uploadMiddleware = upload.fields([{name: "kalamBg", maxCount: 1},{name: "kalamAudio", maxCount: 1} ])
   
 
-app.post('/api/GalleryCover', upload.single('video'), cloudfareUploader);
 
 app.post('/upload/kalamAudio', uploadMiddleware, clearVoice, audioWave, cloudinaryAudio)
 
@@ -1358,7 +1358,10 @@ app.post('/api/deleteProflePic', handleProfilePicDeletion);
 app.post('/api/deleteProfileCover', handleProfileCoverDeletion);
 app.post('/api/userPost', userPostHandler);
 app.get('/api/userPosts', getUserPosts);
-app.post('/api/likeAlbum', handleAlbumLike)
+app.post('/api/likeAlbum', handleAlbumLike);
+app.get('/api/featuredAlbum', featuredAlbum);
+app.post('/api/GalleryCover', upload.single('albumCover'), mediaHandler);
+
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server

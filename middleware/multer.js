@@ -70,6 +70,10 @@ const storage = multer.diskStorage({destination: function (req, file, cb){
     }else if(fieldName === 'albumBgCover'){
 
         cb(null, './temp/img');
+        return;
+    }else if(fieldName === 'albumCover'){
+        cb(null, './temp/albumCover');
+        return;
     }
 
 
