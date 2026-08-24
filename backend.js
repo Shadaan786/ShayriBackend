@@ -77,6 +77,7 @@ const {getUserPosts} = require('./controller/UserPostHandler');
 const {fetchUserComments} = require('./controller/commentController')
 const {handleAlbumLike} = require('./controller/AlbumController');
 const featuredAlbum = require('./controller/featuredAlbumController');
+const AllTimeFavourite = require('./controller/AllTimeFavouriteAlbumController');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -527,7 +528,7 @@ if(!following){
 
      if(searchType === "feed_search"){
 
-  const allKalamsName = await Kalam.find({createdBy:{$in: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
+  const allKalamsName = await Kalam.find({createdBy:{$in: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
   console.log("see feed_search kalams", allKalamsName);
   
   return res.json({
@@ -542,7 +543,7 @@ if(!following){
    
 }else if(searchType === "all_kalams"){
 
-  const allKalamsName = await Kalam.find({createdBy:{$nin: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1}).skip(page*limit - limit).limit(limit);
+  const allKalamsName = await Kalam.find({createdBy:{$nin: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
   console.log('hey', allKalamsName)
    
   return res.json({
@@ -1361,6 +1362,7 @@ app.get('/api/userPosts', getUserPosts);
 app.post('/api/likeAlbum', handleAlbumLike);
 app.get('/api/featuredAlbum', featuredAlbum);
 app.post('/api/GalleryCover', upload.single('albumCover'), mediaHandler);
+app.get("/api/allTimeFavourite", AllTimeFavourite);
 
 
 // sendMail("shadaan.dev@gmail.com")
