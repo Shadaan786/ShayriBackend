@@ -25,23 +25,55 @@ const handleFollow=async(req, res)=>{
 
     if(fcmLength === 0){
 
-         User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}})
+    //      User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}})
 
-         .then(()=>{
+    //      .then(()=>{
+
+    //         redis.del("user",userId)
+    //         return res.status(200).json({
+    //         msg: "follower updated successfully",
+    //         success: true
+    //     })
+    //     console.log("res")
+    // }).catch((error)=>{
+    //      console.log("error updating the follower field", error);
+
+    //      return res.status(404).json({
+    //         msg: "error updating the follower fiels",
+    //         error: error,
+    //         success: false
+    //      })
+    // })
+
+    const handle = async()=>{
+
+        try{
+
+        await User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}});
+
+        await redis.del("user",userId)
+
             return res.status(200).json({
             msg: "follower updated successfully",
             success: true
         })
-        console.log("res")
-    }).catch((error)=>{
-         console.log("error updating the follower field", error);
+
+        }catch(error){
+
+             console.log("error updating the follower field", error);
 
          return res.status(404).json({
             msg: "error updating the follower fiels",
             error: error,
             success: false
          })
-    })
+
+        }
+
+
+    }
+    handle()
+
         gen({
             jobType: "offline_user_notification",
             payload:{
@@ -67,19 +99,67 @@ const handleFollow=async(req, res)=>{
     // }
 
 
-    User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}})
+    // User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}})
 
     
-    .then(()=>{
+    // .then(()=>{
 
-        // const message={
-        //     notification: {
-        //         "title": "You got a new follower",
-        //         "body": "A user started following you"
-        //     },
-        //     token: fctoken
-        // }
-        const jobData={
+    //     // const message={
+    //     //     notification: {
+    //     //         "title": "You got a new follower",
+    //     //         "body": "A user started following you"
+    //     //     },
+    //     //     token: fctoken
+    //     // }
+    //     const jobData={
+    //         jobType: "notifying_user",
+    //         follower: toFollow._id,
+    //         payload:{
+    //             notification: {
+    //                 "title": "New Follower",
+    //                 "body": `${followerName} user started following you`
+
+    //             },
+                
+    //         },
+    //         data:{
+    //                 score: '850',
+    //                 time: '2:45'
+    //             },
+    //          token: fctoken
+    //     }
+
+    //     // messenger.send(message)
+    //     // mqStarter(JSON.stringify(jobData))
+
+    //     gen(jobData)
+
+
+
+
+    //    return res.status(200).json({
+    //         msg: "follower updated successfully",
+    //         success: true
+    //     })
+    //     console.log("res")
+    // }).catch((error)=>{
+    //      console.log("error updating the follower field", error);
+
+    //      return res.status(404).json({
+    //         msg: "error updating the follower fiels",
+    //         error: error,
+    //         success: false
+    //      })
+    // })
+
+    const handle2=async()=>{
+
+        try{
+          
+            await  User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}});
+            await redis.del("user", userId);
+
+              const jobData={
             jobType: "notifying_user",
             follower: toFollow._id,
             payload:{
@@ -97,11 +177,7 @@ const handleFollow=async(req, res)=>{
              token: fctoken
         }
 
-        // messenger.send(message)
-        // mqStarter(JSON.stringify(jobData))
-
-        gen(jobData)
-
+        
 
 
 
@@ -110,15 +186,19 @@ const handleFollow=async(req, res)=>{
             success: true
         })
         console.log("res")
-    }).catch((error)=>{
-         console.log("error updating the follower field", error);
+
+
+        }catch(error){
+            console.log("error updating the follower field", error);
 
          return res.status(404).json({
             msg: "error updating the follower fiels",
             error: error,
             success: false
          })
-    })
+        }
+    }
+    handle2();
 
     }
    
