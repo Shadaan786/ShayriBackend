@@ -52,7 +52,7 @@ const {gen} = require('./send');
 const reciever = require('./reciever');
 const { lookupService } = require("dns");
 const {handleUserLogout} = require('./controller/userController')
-const offlineNotificationHandler = require('./controller/offlineNotificationController')
+const {offlineNotificationHandler} = require('./controller/offlineNotificationController')
 require('./Schedulers/scheduler')
 const Kotw = require('./models/KalamOfTheDay');
 const {upload2} = require('./middleware/multipleMulter')
@@ -78,6 +78,7 @@ const {fetchUserComments} = require('./controller/commentController')
 const {handleAlbumLike} = require('./controller/AlbumController');
 const featuredAlbum = require('./controller/featuredAlbumController');
 const AllTimeFavourite = require('./controller/AllTimeFavouriteAlbumController');
+const {allowedNotificationsHandler} = require('./controller/offlineNotificationController');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -1363,6 +1364,7 @@ app.post('/api/likeAlbum', handleAlbumLike);
 app.get('/api/featuredAlbum', featuredAlbum);
 app.post('/api/GalleryCover', upload.single('albumCover'), mediaHandler);
 app.get("/api/allTimeFavourite", AllTimeFavourite);
+app.post('/api/allowNotifications', allowedNotificationsHandler);
 
 
 // sendMail("shadaan.dev@gmail.com")

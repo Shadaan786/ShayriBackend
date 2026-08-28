@@ -63,6 +63,42 @@ const UserSchema = new mongoose.Schema({
             _id: false
         }
     ],
+    likeNotifications:{
+        type: Number,
+        default: 1
+    },
+    commentNotification:{
+        type: Number,
+        default: 1
+    },
+    newFollowerNotification:{
+        type: Number,
+        default: 1
+    },
+    kalamOfTheWeekNotification:{
+        type: Number,
+        default: 1
+    },
+    kalamUploadNotification:{
+        type: Number,
+        default: 1
+    },
+    securityAlertEmailNotification:{
+        type: Number,
+        default: 1
+    },
+    weeklyDigestEmailNotification:{
+        type: Number,
+        default: 1
+    },
+    kalamOfTheWeekEmailNotification:{
+        type: Number,
+        default: 1
+    },
+    productAnouncementsEmailNotification:{
+        type: Number,
+        default: 1
+    }
 },
     { timestamps: true }
 );
