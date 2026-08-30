@@ -294,6 +294,14 @@ channel.consume(queue, (msg)=>{
 
       })
       
+    }else if(data_final.jobType === "password_reset"){
+
+      sendMail(data_final.payload.email, `Here's your secret key to reset your password ${data_final.payload.otp}, if you haven't requested it contact us`)
+      .then((mailSent)=>{
+        console.log("Mail to reset password sent successfully", mailSent);
+      }).catch((error)=>{
+        console.log("Error while sending password reset mail to user", error);
+      })
     }
 
 },{

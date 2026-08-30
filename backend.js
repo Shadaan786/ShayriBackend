@@ -79,6 +79,9 @@ const {handleAlbumLike} = require('./controller/AlbumController');
 const featuredAlbum = require('./controller/featuredAlbumController');
 const AllTimeFavourite = require('./controller/AllTimeFavouriteAlbumController');
 const {allowedNotificationsHandler} = require('./controller/offlineNotificationController');
+const {handlePasswordReset} = require('./controller/userController');
+const {verifyOtpForPasswordReset} = require('./controller/userController');
+const {handleNewPassword} = require('./controller/userController');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -1365,6 +1368,9 @@ app.get('/api/featuredAlbum', featuredAlbum);
 app.post('/api/GalleryCover', upload.single('albumCover'), mediaHandler);
 app.get("/api/allTimeFavourite", AllTimeFavourite);
 app.post('/api/allowNotifications', allowedNotificationsHandler);
+app.post('/api/emailverification', handlePasswordReset);
+app.post('/ap/otpverification', verifyOtpForPasswordReset);
+app.post('/api/newpassword', handleNewPassword);
 
 
 // sendMail("shadaan.dev@gmail.com")

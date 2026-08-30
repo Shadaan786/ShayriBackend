@@ -46,7 +46,7 @@ async function handleUserSignup(req, res) {
         .then((hash)=>{
             console.log("hashed password", hash);
 
-            const otp = Math.floor(Math.random()*(10e4 - 1000)+1000)
+            const otp = Math.floor(Math.random()*(10e4 - 1000)+1000);
             const userData = {
                 email: email,
                 password: hash,
@@ -398,6 +398,141 @@ const resendOtp=async(req, res)=>{
         })
     }
 
-module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion, handleProfileCoverDeletion};
+    const handlePasswordReset=async(req, res)=>{
+
+        const {email} = url.parse(req.url, true).query;
+
+
+
+        try{
+
+        const user = await User.find({email: email});
+
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                message: "No user with this email"
+            })
+        
+        }
+
+        const otp = Math.floor(Math.random()*(10e4 - 1000)+1000);
+        const phase_id =  Math.floor(Math.random()*(10e4 - 1000)+1000) + Date.now();
+            
+        const userData = {
+            phase_id: phase_id,
+            email: email,
+            otp: otp
+        }
+
+       await redis.set(`user_otp_data:${email}`, JSON.stringify(userData));
+
+       gen({
+        jobType: "password_reset",
+        phase_id: phase_id,
+        payload: {
+            email: email,
+            otp: otp
+        }
+       })
+
+       return res.status(201).json({
+        success: true,
+        message: "OTP sent successfully",
+        phase_id: phase_id
+       })
+ 
+    } catch(error){
+            console.log("Error while finding a user for changing password", error);
+            return res.status(501).json({
+                success: false,
+                message: error
+            })
+
+        }
+
+
+
+
+    }
+
+    const verifyOtpForPasswordReset=async(req, res)=>{
+
+        const {phase_id, email} = url.parse(req.url, true).query;
+        const {otp} = req.body;
+
+        const userData = await redis.get(`user_otp_data:${email}`);
+
+        if(phase_id !== JSON.parse(userData).phase_id){
+
+            console.log("Phase_id does not match");
+
+            return res.status(403).json({
+                success: false,
+                message: "Some error occured"
+            })
+        }
+
+       else if(otp === JSON.parse(userData).otp){
+
+            console.log("OTP verified successfully");
+
+            return res.status(200).json({
+                success: true,
+                message: "OTP verified successfully"
+            })
+
+
+        }else{
+            console.log("OTP verification failed");
+
+            return res.status(501).json({
+                success: false,
+                message: "Incorrect OTP"
+            })
+        }
+
+
+    }
+
+    const handleNewPassword = async()=>{
+
+        const {password} = req.body;
+        const {phase_id, email} = url.parse(req.url, true).query;
+
+        const userData = await redis.get(`user_otp_data:${email}`);
+
+        if(phase_id === JSON.parse(userData).phase_id && email === JSON.parse(userData).email){
+
+            console.log("all correct");
+
+            User.updateOne({email: email},{$set:{password: password}})
+            .then((user_updated)=>{
+                console.log("User password updated successfully");
+                redis.del(`user_otp_data:${email}`)
+                return res.status(201).json({
+                    success: true,
+                    message: "USer password updated successfully"
+                })
+
+            }).catch((error)=>{
+                console.log("Error while updating user password", error);
+                return res.status(501).json({
+                    success: false,
+                    message: error
+                })
+            })
+
+        }else{
+            return res.status(403).json({
+                success: false,
+                message: "Sorry! something went wrong"
+            })
+        }
+    }
+
+module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion, handleProfileCoverDeletion, handlePasswordReset, verifyOtpForPasswordReset, handleNewPassword};
 // module.exports = { handleUserLogin };
+
+
 
