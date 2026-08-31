@@ -1369,7 +1369,7 @@ app.post('/api/GalleryCover', upload.single('albumCover'), mediaHandler);
 app.get("/api/allTimeFavourite", AllTimeFavourite);
 app.post('/api/allowNotifications', allowedNotificationsHandler);
 app.post('/api/emailverification', handlePasswordReset);
-app.post('/ap/otpverification', verifyOtpForPasswordReset);
+app.post('/api/otpverification', verifyOtpForPasswordReset);
 app.post('/api/newpassword', handleNewPassword);
 
 

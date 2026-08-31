@@ -407,14 +407,17 @@ const resendOtp=async(req, res)=>{
         try{
 
         const user = await User.find({email: email});
+        console.log("See user found", user);
 
-        if(!user){
+        if(user.length === 0){
             return res.status(404).json({
                 success: false,
                 message: "No user with this email"
             })
         
-        }
+        }else{
+
+        
 
         const otp = Math.floor(Math.random()*(10e4 - 1000)+1000);
         const phase_id =  Math.floor(Math.random()*(10e4 - 1000)+1000) + Date.now();
@@ -441,6 +444,8 @@ const resendOtp=async(req, res)=>{
         message: "OTP sent successfully",
         phase_id: phase_id
        })
+
+    }
  
     } catch(error){
             console.log("Error while finding a user for changing password", error);
@@ -452,20 +457,27 @@ const resendOtp=async(req, res)=>{
         }
 
 
+        
 
 
     }
 
     const verifyOtpForPasswordReset=async(req, res)=>{
 
-        const {phase_id, email} = url.parse(req.url, true).query;
+        const {phase_Id, email} = url.parse(req.url, true).query;
         const {otp} = req.body;
-
         const userData = await redis.get(`user_otp_data:${email}`);
+        console.log("See url", req.url);
 
-        if(phase_id !== JSON.parse(userData).phase_id){
+        console.log("see phase_id from client", phase_Id);
+        console.log("see phase_id from redis", JSON.parse(userData).phase_id);
+       
 
-            console.log("Phase_id does not match");
+        
+
+        if( Number.parseInt(phase_Id) !== JSON.parse(userData).phase_id){
+
+            console.log("phase_id does not match");
 
             return res.status(403).json({
                 success: false,
@@ -473,7 +485,7 @@ const resendOtp=async(req, res)=>{
             })
         }
 
-       else if(otp === JSON.parse(userData).otp){
+       else if(Number.parseInt(otp) === JSON.parse(userData).otp){
 
             console.log("OTP verified successfully");
 
@@ -495,14 +507,14 @@ const resendOtp=async(req, res)=>{
 
     }
 
-    const handleNewPassword = async()=>{
+    const handleNewPassword = async(req, res)=>{
 
         const {password} = req.body;
         const {phase_id, email} = url.parse(req.url, true).query;
 
         const userData = await redis.get(`user_otp_data:${email}`);
 
-        if(phase_id === JSON.parse(userData).phase_id && email === JSON.parse(userData).email){
+        if(Number.parseInt(phase_id) === JSON.parse(userData).phase_id && email === JSON.parse(userData).email){
 
             console.log("all correct");
 
