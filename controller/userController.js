@@ -518,7 +518,12 @@ const resendOtp=async(req, res)=>{
 
             console.log("all correct");
 
-            User.updateOne({email: email},{$set:{password: password}})
+                    bcrypt.hash(password, saltRounds)
+
+        .then((hash)=>{
+            console.log("hashed password", hash);
+
+                        User.updateOne({email: email},{$set:{password: hash}})
             .then((user_updated)=>{
                 console.log("User password updated successfully");
                 redis.del(`user_otp_data:${email}`)
@@ -534,6 +539,18 @@ const resendOtp=async(req, res)=>{
                     message: error
                 })
             })
+
+
+        }).catch((error)=>{
+            console.log("Error while hashing the password", error);
+
+            return res.status(501).json({
+                success: false,
+                message: "Sorry something went wrong at our side"
+            })
+        })
+
+
 
         }else{
             return res.status(403).json({
