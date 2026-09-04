@@ -560,7 +560,31 @@ const resendOtp=async(req, res)=>{
         }
     }
 
-module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion, handleProfileCoverDeletion, handlePasswordReset, verifyOtpForPasswordReset, handleNewPassword};
+    const deleteUserAccount=(req, res)=>{
+
+        const token = req.cookies.uid;
+
+        req.user = getUser(token);
+
+        User.deleteOne({_id: req.user._id})
+        .then((result)=>{
+            console.log("User deleted successfully");
+
+            return res.status(201).json({
+                success: true,
+                message: "User deleted successfully"
+            })
+        }).catch((error)=>{
+            console.log("Error while deleting user");
+            return res.status(501).json({
+                success: false,
+                message: error
+            })
+        })
+
+    }
+
+module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion, handleProfileCoverDeletion, handlePasswordReset, verifyOtpForPasswordReset, handleNewPassword, deleteUserAccount};
 // module.exports = { handleUserLogin };
 
 

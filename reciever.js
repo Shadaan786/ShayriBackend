@@ -302,7 +302,71 @@ channel.consume(queue, (msg)=>{
       }).catch((error)=>{
         console.log("Error while sending password reset mail to user", error);
       })
-    }
+    }else if(data_final.jobType === "kalamComment_Notification"){
+
+      console.log("kalam comment jobType ran");
+      const check=async()=>{
+
+        const kalam = await Kalam.findOne({_id: data_final.payload.kalamId}).populate("createdBy");
+        const kalamOwner = kalam.createdBy;
+        const commentorId = data_final.payload.commentBy;
+        const commentor_data = await User.findOne({_id: commentorId});
+
+
+        const tokens = kalamOwner.FCMtoken;
+
+        //If user is logged out from all the devices
+        if(tokens.length === 0){
+        await  UserNotification.create({notificationType:"kalamComment_notification", notificationTitle:`New comment on your kalam ${kalam.name}`, notificationBody:`${commentor_data.name} commented on ${kalam.name}`});
+        console.log("Offline user notified successfully for commenting on kalam");
+        }else{
+
+          tokens.forEach((token)=>{
+
+              const message= {
+                notification:{
+                  "title": `New comment on your kalam ${kalam.name}`,
+                  "body": `${commentor_data.name} commented on ${kalam.name}`
+                },
+                data:{
+                  score: '850',
+                  time: '2:45'
+                },
+                token: token.token
+              }
+              
+              console.log("token:", token.token)
+              console.log("message", message)
+
+              messenger.send(message)
+              .then((sent)=>{
+                console.log(`kalam comment notification sent to ${kalamOwner.name} `)
+                // User.updateOne({_id: follower.follower._id},{$push:{notifications:{notificationType: "User upload notification", notificationTitle:"New Kalam", notificationBody: `${kalamUploaderName} uploaded a new kalam ${uploadedKalamName}`, toNavigate: `/userKalams?kalamId=${data_final.payload.kalam_details._id}`}}})
+                  UserNotification.create({
+                  notifiedUser: kalamOwner._id,
+                  notificationType: "Kalam comment notification", 
+                  notificationTitle: "Comment on kalam", 
+                  notificationBody:`${commentor_data.name} commented on ${kalam.name}`, 
+                  toNavigate: `/comment?kalamId=${data_final.payload.kalamId}`
+                })
+                .then((done)=>{
+                console.log("user notification stored in database too in case of token")
+                }).catch((error)=>{
+                console.log("Error while storing user notification in database in case of token")
+                })
+              }).catch((error)=>{
+                console.log("Error while sending kalam comment notification", error);
+              })
+            
+
+          })
+        }
+      }
+      check()
+      
+
+        
+      }
 
 },{
     noAck:false

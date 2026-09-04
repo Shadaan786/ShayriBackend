@@ -2,6 +2,7 @@ const Comment = require('../models/Comments');
 const Kalam = require('../models/Kalam');
 const url = require('url');
 const { getUser } = require('../service/auth');
+const {gen} = require('../send')
 
 
 const fetchUserComments=(req, res)=>{
@@ -62,6 +63,15 @@ console.log(req.body);
 //  const check = await  Kalam.updateOne({_id: kalamId},{ $addToSet:{comments:{commentBy: mUid, comment: comment}}})
 
  if(commentType === "kalamComment"){
+
+    gen({
+        jobType: "kalamComment_Notification",
+        payload:{
+            kalamId: kalamId,
+            commentBy: mUid,
+            comment: comment
+        }
+    })
 
     try{
         const check = await Comment.create({commentFromKalam: kalamId, commentBy:mUid, comment: comment})

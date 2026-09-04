@@ -82,6 +82,7 @@ const {allowedNotificationsHandler} = require('./controller/offlineNotificationC
 const {handlePasswordReset} = require('./controller/userController');
 const {verifyOtpForPasswordReset} = require('./controller/userController');
 const {handleNewPassword} = require('./controller/userController');
+const {deleteUserAccount} = require('./controller/userController');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -1371,7 +1372,7 @@ app.post('/api/allowNotifications', allowedNotificationsHandler);
 app.post('/api/emailverification', handlePasswordReset);
 app.post('/api/otpverification', verifyOtpForPasswordReset);
 app.post('/api/newpassword', handleNewPassword);
-
+app.post('/api/deleteUser', deleteUserAccount);
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server
