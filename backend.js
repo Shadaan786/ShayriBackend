@@ -510,7 +510,7 @@ console.log("Following", following)
 
 if(!following){
   
-  const feed_excluding_followers = Kalams.find({}, {title:1, content:1, name:1, createdAt:1, _id:1, customStyles:1}).skip(page*limit-limit).limit(limit);
+  const feed_excluding_followers = Kalams.find({}, {title:1, content:1, name:1, createdAt:1, _id:1, customStyles:1, kalamAudio: 1}).skip(page*limit-limit).limit(limit);
 
   
   return res.json({
@@ -533,7 +533,7 @@ if(!following){
 
      if(searchType === "feed_search"){
 
-  const allKalamsName = await Kalam.find({createdBy:{$in: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
+  const allKalamsName = await Kalam.find({createdBy:{$in: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1, kalamAudio: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
   console.log("see feed_search kalams", allKalamsName);
   
   return res.json({
@@ -548,7 +548,7 @@ if(!following){
    
 }else if(searchType === "all_kalams"){
 
-  const allKalamsName = await Kalam.find({createdBy:{$nin: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
+  const allKalamsName = await Kalam.find({createdBy:{$nin: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1, kalamAudio: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
   console.log('hey', allKalamsName)
    
   return res.json({
@@ -1299,12 +1299,13 @@ app.post('/api/notificationStatus', (req, res)=>{
 
   UserNotification.updateOne({_id: notificationId},{isSeen: true})
   .then((statusUpdated)=>{
+    console.log("notification status updated successfully");
     return res.status(201).json({
       success: true,
       message: "Notification status updated successfully"
     })
   }).catch((error)=>{
-    console.log("Error while updating notification status");
+    console.log("Error while updating notification status", error);
     return res.status(501).json({
       success: false,
       message: `Error while updating status of notification ${error}`
