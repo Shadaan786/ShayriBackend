@@ -28,7 +28,7 @@ const offlineNotificationHandler = (req, res)=>{
     //     })
     // })
 
-    UserNotification.find({notifiedUser: req.user._id})
+    UserNotification.find({notifiedUser: req.user._id}).sort({createdAt: -1})
     .then((notifications)=>{
         console.log("offlineNotifications", notifications)
         return res.status(201).json({
