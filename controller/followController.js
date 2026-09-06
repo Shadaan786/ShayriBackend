@@ -246,6 +246,7 @@ const handleUnfollow=(req,res)=>{
     .then((updatedResult)=>{
 
         console.log("updatedResult", updatedResult)
+        redis.del("user", user);
         return res.status(200).json({
             message: "unfollowed successfully",
             success: true
