@@ -5,6 +5,7 @@ const {messenger} = require('../firebase')
 const mqStarter = require('../send');
 const { score } = require('firebase/firestore/pipelines');
 const {gen} = require('../send');
+const redis = require('../redis')
 
 
 const handleFollow=async(req, res)=>{
@@ -51,7 +52,8 @@ const handleFollow=async(req, res)=>{
 
         await User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}});
 
-        await redis.del("user",userId)
+        await redis.del(`user:${userId}`,`user:${req.user._id}`);
+        console.log("User cache cleared successfully");
 
             return res.status(200).json({
             msg: "follower updated successfully",
@@ -157,7 +159,8 @@ const handleFollow=async(req, res)=>{
         try{
           
             await  User.updateOne({_id: userId},{$addToSet:{followers:{follower: req.user._id}}});
-            await redis.del("user", userId);
+            await redis.del(`user:${userId}`, `user:${req.user._id}`);
+            console.log("User cache cleared successfuly");
 
               const jobData={
             jobType: "notifying_user",
@@ -246,7 +249,8 @@ const handleUnfollow=(req,res)=>{
     .then((updatedResult)=>{
 
         console.log("updatedResult", updatedResult)
-        redis.del("user", user);
+        redis.del(`user:${user}`, `user:${req.user._id}`);
+        console.log("user cache cleared successfully");
         return res.status(200).json({
             message: "unfollowed successfully",
             success: true

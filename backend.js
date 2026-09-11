@@ -332,7 +332,7 @@ if(Object.keys(data).length === 0){
     "userNazmLength": nazmLen,
      "userGhazalLength": ghazalLen,
       "userSherLength": sherCollectionLen,
-       "userFollowers": netFollowers.followers.length,
+       "userFollowers": netFollowers.followers,
        "userInfo": user,
        "profilePic": profilePic,
        "spotlightVerse": userDb.featuredVerse,
