@@ -83,6 +83,8 @@ const {handlePasswordReset} = require('./controller/userController');
 const {verifyOtpForPasswordReset} = require('./controller/userController');
 const {handleNewPassword} = require('./controller/userController');
 const {deleteUserAccount} = require('./controller/userController');
+const {getSpecifiedUser} = require('./controller/userController');
+const {getUserKalams} = require('./controller/kalamController');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -286,10 +288,11 @@ app.get("/api/users", stayLoggedIn, async (req, res)=>{
 
   const data = await redis.hgetall(`kalamInfo:${userId}`)
   console.log("see object length", Object.keys(data).length);
+
   
 if(Object.keys(data).length === 0){
 
-  console.log("Primary database ran");
+  console.log("Primary database ran==========================================================>");
   // const userId = req.body.userId;
   const userId = url.parse(req.url, true).query.userId
   const userDb = await User.find({_id: userId}, {name: 1, createdAt: 1, profilePic: 1, _id: 0, featuredVerse: 1, profileCover: 1});
@@ -332,7 +335,7 @@ if(Object.keys(data).length === 0){
     "userNazmLength": nazmLen,
      "userGhazalLength": ghazalLen,
       "userSherLength": sherCollectionLen,
-       "userFollowers": netFollowers.followers,
+       "userFollowers": netFollowers,
        "userInfo": user,
        "profilePic": profilePic,
        "spotlightVerse": userDb.featuredVerse,
@@ -357,7 +360,7 @@ if(Object.keys(data).length === 0){
 
   });}else{
     
-    console.log("redis rannnn");
+      console.log("redis ran===================================================================>");
     console.log("data", data)
     console.log(Object.keys(data).length)
     
@@ -1203,13 +1206,16 @@ app.get('/api/likedKalams',async(req, res)=>{
 })
 
 app.get('/api/user', async(req, res)=>{
-   const userId = url.parse(req.url, true).query.userId
+  //  const userId = url.parse(req.url, true).query.userId
+
+  const token = req.cookies.uid;
+  req.user = getUser(token);
   const user = await redis.get(`userId:${req.user._id}`)
 
   if(!user){
     User.findOne({_id: req.user._id})
     .then(async(userFound)=>{
-      await redis.set(`userId:${req.user._id}`, userFound)
+      await redis.set(`userId:${req.user._id}`, JSON.stringify(userFound.toObject()))
       return res.status(200).json(userFound)
     }).catch((error)=>{
       logger.log({
@@ -1218,7 +1224,8 @@ app.get('/api/user', async(req, res)=>{
       })
     })
   }else{
-    return res.status(200).json(user);
+    console.log("ssseee", JSON.parse(user))
+    return res.status(200).json(JSON.parse(user));
   }
 
 })
@@ -1374,6 +1381,9 @@ app.post('/api/emailverification', handlePasswordReset);
 app.post('/api/otpverification', verifyOtpForPasswordReset);
 app.post('/api/newpassword', handleNewPassword);
 app.post('/api/deleteUser', deleteUserAccount);
+
+app.get('/api/user/id', getSpecifiedUser);
+app.get('/api/userkalams', getUserKalams);
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server

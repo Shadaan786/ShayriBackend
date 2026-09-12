@@ -584,7 +584,28 @@ const resendOtp=async(req, res)=>{
 
     }
 
-module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion, handleProfileCoverDeletion, handlePasswordReset, verifyOtpForPasswordReset, handleNewPassword, deleteUserAccount};
+    const getSpecifiedUser=(req, res)=>{
+
+        const {userId} = url.parse(req.url, true).query
+
+        User.findOne({_id:  userId})
+        .then((user)=>{
+            return res.status(200).json({
+                success: true,
+                message: "User found",
+                data: user
+            })
+        }).catch((error)=>{
+            console.log("Error while fetching specified user", error);
+            return res.status(501).json({
+                success: false,
+                message: error
+            })
+        })
+
+    }
+
+module.exports = { handleUserSignup, handleUserLogin, handleUserProfile, handleUserLogout, otp_validator, resendOtp, handleProfilePicDeletion, handleProfileCoverDeletion, handlePasswordReset, verifyOtpForPasswordReset, handleNewPassword, deleteUserAccount, getSpecifiedUser};
 // module.exports = { handleUserLogin };
 
 

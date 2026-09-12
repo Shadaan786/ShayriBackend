@@ -1,7 +1,9 @@
-const {getUser} = require('../service/auth')
+const {getUser} = require('../service/auth');
+const url = require('url');
 
 
 const Kalam = require("../models/Kalam");
+const { message } = require('../firebase');
 
 async function handleKalam(req, res) {
 
@@ -45,4 +47,25 @@ async function handleKalam(req, res) {
     
 }
 
-module.exports = { handleKalam };   
+const getUserKalams=(req, res)=>{
+
+    const {userId} = url.parse(req.url, true).query;
+
+    Kalam.find({createdBy: userId})
+    .then((kalamsFound)=>{
+        return res.status(200).json({
+            success: true,
+            message: "Kalams found successfully",
+            data: kalamsFound
+        })
+    }).catch((error)=>{
+        console.error("Error while Searching for kalams", error);
+        return res.status(501).json({
+            success: false,
+            message: error 
+        })
+    })
+
+}
+
+module.exports = { handleKalam, getUserKalams};   
