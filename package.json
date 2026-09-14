@@ -4,7 +4,7 @@
   "main": "backend.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node backend.js",
+    "start": "node starter.js",
     "start2": "node backend2.js",
     "aut": "npx nodemon backend.jd",
     "aut2": "npx nodemon backend2.js",

@@ -86,7 +86,7 @@ const {deleteUserAccount} = require('./controller/userController');
 const {getSpecifiedUser} = require('./controller/userController');
 const {getUserKalams} = require('./controller/kalamController');
 app.use(cors({
-     origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app"], 
+     origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app", "http://localhost:3000", "http://localhost:5174"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
     credentials: true,     
       allowedHeaders: ['Content-Type', 'Authorization']
