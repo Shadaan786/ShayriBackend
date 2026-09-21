@@ -122,9 +122,9 @@ const startMQ = async()=>{
 //   format: winston.format.json(),
 //   transports: [new winston.transports.Console()],
 // });
-app.use("/signup", userRoute);
+app.use("/api/signup", userRoute);
 console.log("✅ Signup route registered at /signup"); //
-app.use("/login", userRoute2);
+app.use("/api/login", userRoute2);
 console.log("login route registered at /signup/login");
 
 app.use("/streak", stayLoggedIn, streakRoute);
@@ -152,7 +152,7 @@ return res.status(201).json({msg:"User created success"});
 
 });
 
-app.use("/kalam", stayLoggedIn, kalamRoute);
+app.use("/api/kalam", stayLoggedIn, kalamRoute);
 console.log("Kalam route hit");
 
 
@@ -613,9 +613,9 @@ app.post('/api/kalam/comm', commentController )
 
 
 // app.post('/upload', upload.single('image'), cloudfareUploader, handleUserProfile)
-app.post('/upload', upload.single('profilePic'), mediaHandler)
+app.post('/api/upload', upload.single('profilePic'), mediaHandler)
 app.post('/upload/ProfileCover', upload.single('profileCover'), mediaHandler);
-app.post('/upload/albumBgCover', upload.single('albumBgCover'), mediaHandler);
+app.post('/api/upload/albumBgCover', upload.single('albumBgCover'), mediaHandler);
 
 
   
