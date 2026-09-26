@@ -34,7 +34,7 @@ const sendMail=(reciever, text)=>{
             from: 'shadaan <shadaan0019vstar@gmail.com>',
             to: reciever,
             subject: 'Hello testing nodemailer',
-            text: text,
+            html: text,
             
         }
 

@@ -5,6 +5,9 @@ const mqStarter = require('./send');
 const User = require('./models/User');
 const Kalam = require('./models/Kalam');
 const UserNotification = require('./models/Notifications');
+// const welcomeMail = require('./templates/welcomeMail.html');
+const fs = require('fs');
+const Handlebars = require('handlebars');
 let queue2;
 
 const reciever =async(makeSure)=>{
@@ -49,7 +52,21 @@ channel.consume(queue, (msg)=>{
 
     if(data_final.job_type === "welcome_mail"){
 
-      sendMail(data_final.email, "welcome to ShayriClub BUDDY!!! RabbitMQ")
+      console.log("Welcome mail job ran");
+
+      let source = fs.readFileSync('./templates/welcomeMail.html', 'utf8')
+      let template = Handlebars.compile(source);
+
+      let data = template({
+        first_name: data_final.payload.name,
+        username: data_final.payload.name,
+        user_email: data_final.payload.email
+      })
+
+      console.log("See data", data);
+      console.log("see email", data_final.payload.email);
+
+      sendMail(data_final.payload.email, data)
       .then((mailResponse)=>{
         console.log("Mail sent successfullt", mailResponse);
       }).catch((error)=>{

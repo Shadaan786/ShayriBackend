@@ -82,10 +82,10 @@ async function handleUserSignup(req, res) {
 
         //     console.log("User created successfully and hashed Password stored successfully in DataBase");
         //      console.log("✅ User created successfully:");
-        //     //  jobQueue.push({
-        //     //     job_type: "welcome_mail",
-        //     //     email: email
-        //     //  })
+            //  jobQueue.push({
+            //     job_type: "welcome_mail",
+            //     email: email
+            //  })
 
         //      mqStarter(JSON.stringify({
         //         job_type: "welcome_mail",
@@ -166,13 +166,23 @@ const otp_validator = async(req, res)=>{
             email,
             password
         }).then((userCreated)=>{
-            console.log("User successfully created")
+            console.log("User successfully created");
+
+            gen({
+                job_type: "welcome_mail",
+                payload:{
+                    name,
+                    email
+                }
+            })
+
+
             return res.status(201).json({
                 success: true,
                 message: "User successfully created"
             })
         }).catch((error)=>{
-            console.log("Error while creating USer");
+            console.log("Error while creating User", error);
             return res.status(404).json({
                 success: false,
                 message: `Error while creating user ${error}`
