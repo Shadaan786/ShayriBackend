@@ -61,7 +61,8 @@ async function handleUserSignup(req, res) {
                 jobType: "OTP_verification",
                 payload:{
                     otp: otp,
-                    email: email
+                    email: email,
+                    name: name
                 }
             })
 

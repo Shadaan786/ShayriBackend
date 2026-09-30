@@ -75,8 +75,25 @@ channel.consume(queue, (msg)=>{
 
     }else if(data_final.jobType === 'OTP_verification'){
 
+      const source = fs.readFileSync('./templates/otpTemplate.html', 'utf-8');
+
     
-      sendMail(data_final.payload.email, `Thanks for joining Alfaz here's your secret pin to securely Signup for Alfaz \n secret pin:${data_final.payload.otp}`)
+      const template = Handlebars.compile(source);
+      const data = {
+        "first_name": data_final.payload.name,
+        "otp_code": data_final.payload.otp,
+        "expiry_minutes": "5",
+        "user_email": data_final.payload.email,
+        "company_address": "New Delhi, India",
+        "current_year": "2026",
+        "x_url": "https://x.com/AlfazHQ",
+        "instagram_url": "will_be_available_soon"
+      }
+
+      const result = template(data);
+
+    
+      sendMail(data_final.payload.email, result)
       .then((mailResponse)=>{
         console.log("OTP mail sent successfully", mailResponse)
       }).catch((error)=>{
