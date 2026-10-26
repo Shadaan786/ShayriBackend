@@ -1,6 +1,9 @@
 const { message } = require('../firebase');
 const Post = require('../models/UserPost');
 const { getUser } = require('../service/auth');
+const ReportedPost = require('../models/ReportedPost');
+const NotInterestedPost = require('../models/NotInterestedPosts');
+const { response } = require('express');
 
 const userPostHandler=(req, res)=>{
 
@@ -46,13 +49,32 @@ const userPostHandler=(req, res)=>{
 
 }
 
-const getUserPosts=(req, res)=>{
+const getUserPosts=async(req, res)=>{
 
-    Post.find({})
+    const token = req.cookies.uid;
+    req.user = getUser(token);
+
+    // searching for reported posts
+
+    const ReportedPosts = await ReportedPost.find({user: req.user._id},{posts:1, _id:0});
+    const NotInterestedPosts = await NotInterestedPost.find({user: req.user._id},{posts:1, _id:0});
+
+    const merged = ReportedPosts.concat(NotInterestedPosts)
+
+    console.log("Seeeee merged000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", merged);
+
+    const merged2 = [];
+
+    merged.forEach((item)=>{
+        merged2.push(item.posts);
+    })
+
+    Post.find({_id:{$nin:merged2}})
     .populate("postBy")
     .populate("featuredAlbum")
     .populate("featurdKalam").sort({createdAt: -1})
     .then((result)=>{
+        console.log("see nin----------------------------------------------------------------------------------------------------------------------", result)
         return res.status(201).json({
             success: true,
             message: "User posts fetched successfully",

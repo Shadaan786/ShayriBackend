@@ -86,6 +86,14 @@ const {deleteUserAccount} = require('./controller/userController');
 const {getSpecifiedUser} = require('./controller/userController');
 const {getUserKalams} = require('./controller/kalamController');
 const {getTutorialInfo, updateTutorial} = require('./controller/tutorialController');
+const {reportKalam} = require('./controller/kalamReportController');
+const {notInterestedKalam} = require('./controller/NotInterestedKalamController');
+const ReportedKalam = require("./models/ReportedKalam");
+const NotInterestedKalam = require("./models/NotInterestedKalams");
+const {PostLikeController} = require('./controller/PostLikeController');
+const {userLikedPosts} = require('./controller/PostLikeController');
+const {reportPost} = require('./controller/postReportController');
+const {notInterestedPost} = require('./controller/NotInterestedPostController');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app", "http://localhost:3000", "http://localhost:5174", "http://16.192.173.158", "http://alfaz.live"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -190,7 +198,7 @@ app.get("/api/UrKalam", async (req, res)=>{
   console.log(req.cookies.uid);
   const user = getUser(token);
   req.user = user;
-  const allDbKalam = await Kalam.find({createdBy: req.user._id});
+  const allDbKalam = await Kalam.find({createdBy: req.user._id}).populate("createdBy");
   
   return res.json(allDbKalam);
 })
@@ -478,28 +486,25 @@ app.get('/api/social', async(req, res)=>{
 
    const page = url.parse(req.url, true).query.page;
   const limit = url.parse(req.url, true).query.limit;
+const searchType = url.parse(req.url, true).query.searchType;
+
   const token = req.cookies.uid;
   req.user = getUser(token);
-const searchType = url.parse(req.url, true).query.searchType
 
   console.log("see url",req.url);
  const userId = await User.find({_id: req.user._id});
  console.log("userId", userId);
+
+ // Finding Following
 const following = await User.find({followers:{follower: req.user._id}}, {_id: 1});
+
+//extracting following ids
 const newFollow=[];
 if (following){
 
-  // const new_follow = await following.map((item, i)=>{
-  //   item._id
-  // })
-
-  
   following.forEach((item)=>{
     newFollow.push(item._id);
   })
-
-
-  console.log("s", newFollow)
 
 }
 console.log("Following", following)
@@ -511,10 +516,29 @@ console.log("Following", following)
 
   console.log("vvv",following.values)
 
+  //Finding reported kalams
+ const reported_kalams = await ReportedKalam.find({user: req.user._id});
+ const reported_kalamsId=[];
+
+ reported_kalams.forEach((item)=>{
+  reported_kalamsId.push(item.kalams);
+ })
+
+ //Finding Not interested kalams
+ const not_interestedKalams = await NotInterestedKalam.find({user:req.user._id});
+ const not_interestedKalams_Id = [];
+
+not_interestedKalams.forEach((item)=>{
+  not_interestedKalams_Id.push(item.kalams._id);
+})
+
+const merged = reported_kalamsId.concat(not_interestedKalams_Id);
+
+console.log('.............................................................................................................', reported_kalamsId)
 
 if(!following){
   
-  const feed_excluding_followers = Kalams.find({}, {title:1, content:1, name:1, createdAt:1, _id:1, customStyles:1, kalamAudio: 1}).skip(page*limit-limit).limit(limit);
+  const feed_excluding_followers = Kalams.find({_id:{$nin:merged}}, {title:1, content:1, name:1, createdAt:1, _id:1, customStyles:1, kalamAudio: 1}).skip(page*limit-limit).limit(limit);
 
   
   return res.json({
@@ -537,8 +561,8 @@ if(!following){
 
      if(searchType === "feed_search"){
 
-  const allKalamsName = await Kalam.find({createdBy:{$in: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1, kalamAudio: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
-  console.log("see feed_search kalams", allKalamsName);
+  const allKalamsName = await Kalam.find({createdBy:{$in: newFollow},_id:{$nin:merged}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1, kalamAudio: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
+  console.log("see feed_search kalams---------------------------------------------------------------------------------------", allKalamsName);
   
   return res.json({
     
@@ -552,7 +576,7 @@ if(!following){
    
 }else if(searchType === "all_kalams"){
 
-  const allKalamsName = await Kalam.find({createdBy:{$nin: newFollow}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1, kalamAudio: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
+  const allKalamsName = await Kalam.find({createdBy:{$nin: newFollow},_id:{$nin:merged}}, {type: 1, content: 1, name: 1, createdAt: 1, _id:1, customStyles: 1, createdBy: 1, kalamAudio: 1}).populate("createdBy").skip(page*limit - limit).limit(limit);
   console.log('hey', allKalamsName)
    
   return res.json({
@@ -1388,6 +1412,15 @@ app.get('/api/userkalams', getUserKalams);
 
 app.get('/api/tutorials', getTutorialInfo);
 app.post('/api/updatetutorial', updateTutorial);
+
+app.post('/api/reportkalam', reportKalam);
+app.post('/api/notinterestedkalam', notInterestedKalam);
+
+app.post('/api/likepost', PostLikeController);
+app.get('/api/likedposts', userLikedPosts);
+
+app.post('/api/reportpost', reportPost)
+app.post('/api/notinterestedPost', notInterestedPost);
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server

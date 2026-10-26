@@ -13,7 +13,7 @@ const AlbumSchema = new Schema({
     kalamCollection:[
         {
             kalam:{
-                type: mongoose.Schema.Types.ObjectId,
+                type: Schema.Types.ObjectId,
                 ref: 'Kalam'
                  
             },
