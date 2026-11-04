@@ -642,7 +642,7 @@ app.post('/api/kalam/comm', commentController )
 
 // app.post('/upload', upload.single('image'), cloudfareUploader, handleUserProfile)
 app.post('/api/upload', upload.single('profilePic'), mediaHandler)
-app.post('/upload/ProfileCover', upload.single('profileCover'), mediaHandler);
+app.post('/api/upload/ProfileCover', upload.single('profileCover'), mediaHandler);
 app.post('/api/upload/albumBgCover', upload.single('albumBgCover'), mediaHandler);
 app.post('/api/albumcoverncreation', upload.single('albumcover&creation'), mediaHandler);
 
