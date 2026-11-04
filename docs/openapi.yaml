@@ -1,0 +1,55 @@
+openapi: 3.0.3
+
+info:
+ title: Alfaz API
+ version: 1.0.0
+ description: Official API documentation for the Alfaz platform
+
+servers:
+ - url: http://localhost:9000
+   description: Local development servers
+
+tags:
+ - name: Users
+   description: User-related operations
+
+ - name: Kalams
+   description: Kalam-related operations
+
+ - name: Albums
+   description: Album-related operations
+
+ - name: Posts
+   description: Post-related operations
+
+ - name: Likes
+   description: Like-related operations
+
+ - name: Comments
+   description: Comments-related operations
+
+ - name: Media
+   description: Media-related operations
+
+ - name: Notifications
+   description: Notifications-related operations
+
+ - name: Tutorials
+   description: Tutorials-related operations
+
+ - name: Feed
+   description: Feed-related operations
+
+ - name: Search
+   description: Search-related operations
+
+ - name: Authentication
+   description: Authentication-relatede operations
+
+paths: 
+
+ 
+
+components:
+ schemas: {}
+ securitySchemas: {}

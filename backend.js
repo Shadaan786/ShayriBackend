@@ -94,6 +94,9 @@ const {PostLikeController} = require('./controller/PostLikeController');
 const {userLikedPosts} = require('./controller/PostLikeController');
 const {reportPost} = require('./controller/postReportController');
 const {notInterestedPost} = require('./controller/NotInterestedPostController');
+const {albumCoverDelete} = require('./controller/AlbumController');
+const {albumBgCoverDelete} = require('./controller/AlbumController');
+const {getSpecificPost} = require('./controller/UserPostHandler');
 app.use(cors({
      origin: ["http://localhost:5173", "https://shayriclub.vercel.app", "https://shayriclub-apdiw1d49-mohd-shadaans-projects.vercel.app", "http://localhost:3000", "http://localhost:5174", "http://16.192.173.158", "http://alfaz.live"], 
   methods: ["GET", "POST", "PUT", "DELETE"], 
@@ -641,6 +644,7 @@ app.post('/api/kalam/comm', commentController )
 app.post('/api/upload', upload.single('profilePic'), mediaHandler)
 app.post('/upload/ProfileCover', upload.single('profileCover'), mediaHandler);
 app.post('/api/upload/albumBgCover', upload.single('albumBgCover'), mediaHandler);
+app.post('/api/albumcoverncreation', upload.single('albumcover&creation'), mediaHandler);
 
 
   
@@ -1421,6 +1425,11 @@ app.get('/api/likedposts', userLikedPosts);
 
 app.post('/api/reportpost', reportPost)
 app.post('/api/notinterestedPost', notInterestedPost);
+
+app.post('/api/deletealbumcover', albumCoverDelete);
+app.post('/api/deletealbumbgcover', albumBgCoverDelete);
+
+app.get('/api/userspecificpost',getSpecificPost)
 
 // sendMail("shadaan.dev@gmail.com")
 module.exports = server

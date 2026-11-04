@@ -10,6 +10,7 @@ const dbProfileUploader = require('./utilities/dbProfileUpload')
 const dbProfileCoverUpload = require('./utilities/dbProfileCoverUpload');
 const dbAlbumBgUploader = require('./utilities/dbAlbumBgUploader');
 const dbAlbumCoverUploader = require('./utilities/dbAlbumCoverUploader');
+const {albumCreator} = require('./utilities/dbAlbumCreation')
 
 
 const mediaQueueConsumer = async(makeSure2)=>{
@@ -163,6 +164,12 @@ channel.consume(queue, msg=>{
 
         })
         check8();
+    }else if(media_data.fileType === 'albumCover&creation'){
+        const check9=async()=>{
+            const imageUrl = await cloudfareUploader(media_data.payload.path);
+            await albumCreator(media_data.payload.userId,imageUrl,media_data.payload.albumData)
+        }
+        check9();
     }
 
 },{

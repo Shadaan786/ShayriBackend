@@ -138,6 +138,17 @@ const mediaHandler=(req, res)=>{
                 albumId: req.body.albumId
             }
         })
+    }else if(req.body.fileType === 'albumCover&creation'){
+
+        mediaData({
+            fileType: 'albumCover&creation',
+            payload:{
+                path: req.file.path,
+                userId: req.user._id,
+                albumData: req.body.albumData
+                
+            }
+        })
     }
 
     return res.json("done")

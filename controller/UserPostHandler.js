@@ -4,6 +4,7 @@ const { getUser } = require('../service/auth');
 const ReportedPost = require('../models/ReportedPost');
 const NotInterestedPost = require('../models/NotInterestedPosts');
 const { response } = require('express');
+const url = require('url')
 
 const userPostHandler=(req, res)=>{
 
@@ -90,4 +91,23 @@ const getUserPosts=async(req, res)=>{
 
 }
 
-module.exports = {userPostHandler, getUserPosts};
+const getSpecificPost=(req, res)=>{
+    const {postId} = url.parse(req.url, true).query;
+    Post.findOne({_id:postId})
+    .populate("postBy").populate("likedBy").populate("featuredAlbum").populate("featurdKalam")
+    .then((response)=>{
+        return res.status(200).json({
+            success: true,
+            data: response
+        })
+    })
+    .catch((error)=>{
+        console.log("error while finding the specific post", error);
+        return res.status(501).json({
+            succes: false,
+            error: error
+        })
+    })
+}
+
+module.exports = {userPostHandler, getUserPosts, getSpecificPost};

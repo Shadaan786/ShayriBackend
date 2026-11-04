@@ -1,3 +1,4 @@
+const { type } = require('firebase/firestore/pipelines');
 const mongoose =  require('mongoose');
 
 const Schema = mongoose.Schema;
@@ -24,6 +25,18 @@ const AlbumSchema = new Schema({
         },
        
     ],
+
+    defaultAlbumCover:{
+        
+            color1:{
+                type:String
+            },
+
+            color2:{
+                type: String
+            }
+        
+    },
 
     albumCover:{
         type: String
