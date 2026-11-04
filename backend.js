@@ -247,7 +247,7 @@ app.get("/api/sher/Allama_Iqbal/:id", (req, res)=>{
     return res.json(sher);
 })
 
-app.get('/api/userId', async(req, res)=>{
+app.get('/api/userId',stayLoggedIn, async(req, res)=>{
 
   const token = req.cookies.uid;
   req.user = getUser(token);
@@ -1400,7 +1400,7 @@ app.post('/api/deleteKalam', (req, res)=>{
 app.post('/api/deleteProflePic', handleProfilePicDeletion);
 app.post('/api/deleteProfileCover', handleProfileCoverDeletion);
 app.post('/api/userPost', userPostHandler);
-app.get('/api/userPosts', getUserPosts);
+app.get('/api/userPosts',stayLoggedIn, getUserPosts);
 app.post('/api/likeAlbum', handleAlbumLike);
 app.get('/api/featuredAlbum', featuredAlbum);
 app.post('/api/GalleryCover', upload.single('albumCover'), mediaHandler);
